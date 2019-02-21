@@ -1,0 +1,17 @@
+# Created by .ignore support plugin (hsz.mobi)
+.idea/
+temp/
+test/
+*.iml
+*.log
+*.cache.php
+vendor/
+build/
+
+*.js
+*.css
+*.map
+node_modules/
+*.tsx
+*.lock
+/admin/
