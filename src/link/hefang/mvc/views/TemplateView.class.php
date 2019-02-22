@@ -8,7 +8,6 @@ use link\hefang\helpers\CollectionHelper;
 use link\hefang\mvc\exceptions\ViewNotCompiledException;
 use link\hefang\mvc\exceptions\ViewNotFoundException;
 use link\hefang\mvc\Mvc;
-use link\hefang\site\content\models\ArticleModel;
 
 class TemplateView extends BaseView
 {

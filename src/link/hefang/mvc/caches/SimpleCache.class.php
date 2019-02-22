@@ -1,12 +1,6 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: hefang
- * Date: 2018/12/4
- * Time: 08:15
- */
-
 namespace link\hefang\mvc\caches;
+defined('PHP_MVC') or die("Access Refused");
 
 
 use link\hefang\caches\CacheItem;

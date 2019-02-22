@@ -6,7 +6,6 @@ namespace link\hefang\mvc\databases;
 use link\hefang\helpers\CollectionHelper;
 use link\hefang\helpers\StringHelper;
 use link\hefang\mvc\entities\Pager;
-use link\hefang\mvc\exceptions\PhpErrorException;
 use link\hefang\mvc\exceptions\SqlException;
 use link\hefang\mvc\Mvc;
 

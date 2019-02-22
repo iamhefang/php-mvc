@@ -10,5 +10,7 @@
         - theme1
         - theme2
     - application
-        - config.properties
+        - 项目主包
+        - application.config.php
+        - xxx.config.php
     - index.php

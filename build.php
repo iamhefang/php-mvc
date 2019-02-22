@@ -4,7 +4,7 @@ $name = "php-mvc";
 $web = "$name.php";
 $cli = "$name.php";
 
-$version = '0.0.1';
+$version = '0.0.2';
 //$version = "SNAPSHOT";
 
 $fnname = __DIR__ . "/build/$name-$version.phar";

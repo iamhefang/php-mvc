@@ -48,6 +48,7 @@ class Mvc
     private static $developers = [];
 
     private static $fileUrlPrefix = "/files/";
+    private static $urlPrefix = '/index.php';
 
     /**
      * 上传文件保存路径
@@ -219,6 +220,11 @@ class Mvc
         return self::$fileUrlPrefix;
     }
 
+    public static function getUrlPrefix(): string
+    {
+        return self::$urlPrefix;
+    }
+
     /**
      * @return string
      */
@@ -324,10 +330,17 @@ class Mvc
         self::initCaches();
         self::initLogger();
 //        self::printSystemInfo();
+        self::initUrlPrefix();
         self::initProject();
         self::initDatabase();
         self::initApplication();
         self::initControllers();
+    }
+
+    private static function initUrlPrefix()
+    {
+        self::$urlPrefix = self::getProperty('prefix.url.main');
+        self::$fileUrlPrefix = self::getProperty('prefix.url.file');
     }
 
     private static function initStaticVars()
@@ -469,7 +482,7 @@ class Mvc
 //            "\n - 编码: ", $dbCharset
 //        ]));
         try {
-            $db = new $dbClassName($dbHost, $dbUsername, $dbPassword, $dbDatabase, $dbPort);
+            $db = new $dbClassName($dbHost, $dbUsername, $dbPassword, $dbDatabase, $dbCharset, $dbPort);
             if ($db instanceof BaseDb) {
                 self::$database = $db;
             }
