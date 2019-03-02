@@ -55,6 +55,7 @@ abstract class BaseDb
     public static abstract function getExecutedSqls(): array;
 
     /**
+     * 插入记录
      * @param string $table
      * @param array $data
      * @return float
@@ -63,6 +64,7 @@ abstract class BaseDb
     public abstract function insert(string $table, array $data): float;
 
     /**
+     * 删除记录
      * @param string $table
      * @param Sql|string|null $where
      * @return float
@@ -71,6 +73,7 @@ abstract class BaseDb
     public abstract function delete(string $table, $where = null): float;
 
     /**
+     * 更新记录
      * @param string $table
      * @param array $data
      * @param Sql|string|null $where
@@ -80,6 +83,7 @@ abstract class BaseDb
     public abstract function update(string $table, array $data, $where = null): float;
 
     /**
+     * 分页查询
      * @param string $table
      * @param int $pageIndex
      * @param int $pageSize
@@ -103,6 +107,7 @@ abstract class BaseDb
     ): Pager;
 
     /**
+     * 获取一条记录
      * @param string $table
      * @param Sql|string|null $where
      * @param array|null $fields
@@ -112,6 +117,7 @@ abstract class BaseDb
     public abstract function row(string $table, $where = null, array $fields = null);
 
     /**
+     * 查询某个字段
      * @param string $table
      * @param string $column
      * @param Sql|string|null $where
@@ -125,6 +131,7 @@ abstract class BaseDb
     }
 
     /**
+     * 计算记录数
      * @param string $table
      * @param Sql|string|null $where
      * @return float
@@ -133,6 +140,7 @@ abstract class BaseDb
     public abstract function count(string $table, $where = null): float;
 
     /**
+     * 求和
      * @param string $table
      * @param string $column
      * @param Sql|string|null $where
@@ -142,6 +150,7 @@ abstract class BaseDb
     public abstract function sum(string $table, string $column, $where = null): float;
 
     /**
+     * 求平均值
      * @param string $table
      * @param string $column
      * @param Sql|string|null $where
@@ -151,6 +160,7 @@ abstract class BaseDb
     public abstract function avg(string $table, string $column, $where = null): float;
 
     /**
+     * 求最大值
      * @param string $table
      * @param string $column
      * @param Sql|string|null $where
@@ -160,6 +170,7 @@ abstract class BaseDb
     public abstract function max(string $table, string $column, $where = null): float;
 
     /**
+     * 求最小值
      * @param string $table
      * @param string $column
      * @param Sql|string|null $where
@@ -177,6 +188,7 @@ abstract class BaseDb
     public abstract function transaction($sqls): int;
 
     /**
+     * 执行insert,delete,update等更新语句
      * @param Sql $sql
      * @return float
      * @throws SqlException
@@ -184,6 +196,7 @@ abstract class BaseDb
     public abstract function executeUpdate(Sql $sql): float;
 
     /**
+     * 执行sql语句
      * @param Sql $sql
      * @return mixed
      * @throws SqlException

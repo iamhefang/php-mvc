@@ -10,6 +10,7 @@ use link\hefang\interfaces\IJsonObject;
 use link\hefang\interfaces\IMapObject;
 use link\hefang\mvc\databases\BaseDb;
 use link\hefang\mvc\databases\Mysql;
+use link\hefang\mvc\databases\Sql;
 use link\hefang\mvc\entities\Pager;
 use link\hefang\mvc\exceptions\ModelException;
 use link\hefang\mvc\exceptions\SqlException;
@@ -151,12 +152,16 @@ abstract class BaseModel implements IJsonObject, IMapObject, IModel, \JsonSerial
             }
         }
         $db = self::_database();
-
-        $where = join(" AND ", array_map(function ($item) {
+        $params = [];
+        $where = join(" AND ", array_map(function ($item) use (&$params) {
             $value = $this->getValueFromField($item);
-            return "`$item` = '$value'";
+            if (is_bool($value)) {
+                $value = $value ? 1 : 0;
+            }
+            $params[$item] = $value;
+            return "`{$item}` = :{$item}";
         }, $pk));
-        return $db->update(self::_table(), $kvs, $where) > 0;
+        return $db->update(self::_table(), $kvs, new Sql($where, $params)) > 0;
     }
 
     /**

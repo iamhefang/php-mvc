@@ -1,7 +1,7 @@
 <?php
 defined("PHP_MVC_ROOT") or define("PHP_MVC_ROOT", __DIR__);
 define("PHP_MVC", true);
-define("PHP_MVC_VERSION", "0.0.2");
+define("PHP_MVC_VERSION", "SNAPSHOT");
 define("DS", DIRECTORY_SEPARATOR);
 
 defined("PATH_ROOT") or define("PATH_ROOT", $_SERVER["DOCUMENT_ROOT"]);

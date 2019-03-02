@@ -30,7 +30,7 @@ class Mysql extends BaseDb
     {
         parent::__construct($host, $username, $password, $database, $charset, $port);
 
-        if(!extension_loaded('pdo_mysql')){
+        if (!extension_loaded('pdo_mysql')) {
             throw new \RuntimeException("扩展'pdo_mysql'未加载");
         }
 
@@ -86,7 +86,7 @@ class Mysql extends BaseDb
         }
         $columns = join(', ', $cols);
         $sql = new Sql("UPDATE `$table` SET $columns" . self::makeWhere($w) . ';', $params);
-        return $this->executeUpdate($sql);
+        return $this->executeUpdate($sql->setParams($params));
     }
 
 
@@ -180,10 +180,20 @@ class Mysql extends BaseDb
             $params = $sql->getParams();
             $stmt = $this->pdo->prepare($sql->getSql());
             foreach ($params as $key => $value) {
+                if (is_bool($value)) {
+                    $value = $value ? 1 : 0;
+                }
                 $stmt->bindValue(':' . $key, $value);
             }
             if ($stmt->execute()) {
-                $count += $stmt->rowCount();
+                if ($stmt->errorCode() !== '00000') {
+                    $this->errorCode = $stmt->errorCode();
+                    $this->errorInfo = $stmt->errorInfo();
+                    $this->pdo->rollBack();
+                    break;
+                } else {
+                    $count += $stmt->rowCount();
+                }
                 $stmt->closeCursor();
             }
         }
@@ -195,7 +205,13 @@ class Mysql extends BaseDb
         self::_log($sql);
 
         $stmt = $this->pdo->prepare($sql->getSql());
-        $res = $stmt->execute($sql->getParams());
+        foreach ($sql->getParams() as $key => $value) {
+            if (is_bool($value)) {
+                $value = $value ? 1 : 0;
+            }
+            $stmt->bindValue(':' . $key, $value);
+        }
+        $res = $stmt->execute();
         $res and $res = $stmt->rowCount();
         if ($stmt->errorCode() !== '00000') {
             $this->errorCode = $stmt->errorCode();
@@ -213,8 +229,13 @@ class Mysql extends BaseDb
         self::_log($sql);
 
         $stmt = $this->pdo->prepare($sql->getSql());
-        $res = $stmt->execute($sql->getParams());
-
+        foreach ($sql->getParams() as $key => $value) {
+            if (is_bool($value)) {
+                $value = $value ? 1 : 0;
+            }
+            $stmt->bindValue(':' . $key, $value);
+        }
+        $res = $stmt->execute();
         if ($stmt->errorCode() !== '00000') {
             $this->errorCode = $stmt->errorCode();
             $this->errorInfo = $stmt->errorInfo();
@@ -244,7 +265,16 @@ class Mysql extends BaseDb
     private static function _log(Sql $sql)
     {
         self::$sqls[] = $sql;
-        Mvc::getLogger()->debug("执行SQL语句", $sql->getSql());
+        $params = '';
+        foreach ($sql->getParams() as $key => $value) {
+            $type = gettype($value);
+            if (is_bool($value)) {
+                $value = $value ? 'true' : 'false';
+            }
+            $params .= "\n\r\r{$key}({$type}): {$value}";
+        }
+        $params or $params = '无';
+        Mvc::getLogger()->debug("执行SQL语句", "SQL语句: {$sql->getSql()}\n参数: {$params}");
     }
 
     const KEYWORDS = [

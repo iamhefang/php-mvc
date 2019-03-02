@@ -171,8 +171,9 @@ class TemplateView extends BaseView
     protected function object(string $php): string
     {
         return preg_replace_callback('#\{([0-9a-z_]+)\.([0-9a-z_]+)(\(\))?}#is', function (array $match) {
-            $action = $match[3] ? '' : '$';
-            return "<?=\${$match[1]}->{$action}{$match[2]}{$match[3]}?>";
+            $action = (count($match) === 4 && $match[3]) ? '' : '$';
+            $quotes = (count($match) === 4 && $match[3]) ? '()' : '';
+            return "<?=\${$match[1]}->{$action}{$match[2]}{$quotes}?>";
         }, $php);
     }
 
