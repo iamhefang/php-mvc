@@ -647,7 +647,10 @@ INFO
         if (self::$pathInfoType === "QUERY_STRING") {
             $path = CollectionHelper::getOrDefault($_GET, "pathinfo", "/");
         } else {
-            $path = CollectionHelper::getOrDefault($_SERVER, "PATH_INFO", "/");
+            $path = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : (
+            isset($_SERVER["ORIG_PATH_INFO"]) ? $_SERVER["ORIG_PATH_INFO"] : (
+            isset($_SERVER['REDIRECT_PATH_INFO']) ? $_SERVER["REDIRECT_PATH_INFO"] : '/'));
+//            $path = CollectionHelper::getOrDefault($_SERVER, "PATH_INFO", "/");
         }
         $path = urldecode($path);
         /**
