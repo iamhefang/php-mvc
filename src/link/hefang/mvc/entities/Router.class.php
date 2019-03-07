@@ -67,7 +67,7 @@ class Router implements IMapObject, IJsonObject
      */
     public function setModule(string $module): Router
     {
-        $this->map["module"] = $module;
+        $this->map["module"] = self::checkUnderLine($module);
         return $this;
     }
 
@@ -85,7 +85,7 @@ class Router implements IMapObject, IJsonObject
      */
     public function setController(string $controller): Router
     {
-        $this->map["controller"] = $controller;
+        $this->map["controller"] = self::checkUnderLine($controller);
         return $this;
     }
 
@@ -103,7 +103,7 @@ class Router implements IMapObject, IJsonObject
      */
     public function setAction(string $action): Router
     {
-        $this->map["action"] = $action;
+        $this->map["action"] = self::checkUnderLine($action);
         return $this;
     }
 
@@ -121,7 +121,7 @@ class Router implements IMapObject, IJsonObject
      */
     public function setCmd(string $cmd): Router
     {
-        $this->map["cmd"] = $cmd;
+        $this->map["cmd"] = self::checkUnderLine($cmd);
         return $this;
     }
 
@@ -208,6 +208,14 @@ class Router implements IMapObject, IJsonObject
         }
 
         return $router;
+    }
+
+    public static function checkUnderLine(string $str): string
+    {
+        if (preg_match('/^\d.*?/i', $str)) {
+            return '_' . $str;
+        }
+        return $str;
     }
 
     public function toJsonString(): string

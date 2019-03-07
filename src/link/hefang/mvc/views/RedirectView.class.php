@@ -17,7 +17,7 @@ class RedirectView extends BaseView
      * @param string $url
      * @param bool $useJavascript
      */
-    public function __construct(string $url, bool $useJavascript)
+    public function __construct(string $url, bool $useJavascript = false)
     {
         $this->useJavascript = $useJavascript;
         if ($useJavascript) {
