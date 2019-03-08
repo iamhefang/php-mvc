@@ -134,15 +134,18 @@ abstract class BaseController implements IController, IDULG
         return $this;
     }
 
-    public final function _header(string $name, string $defaultValue = null): string
+    /**
+     * @param string $name
+     * @param string|null $defaultValue
+     * @return string|null
+     */
+    public final function _header(string $name, string $defaultValue = null)
     {
         $name = "HTTP_" . strtoupper(str_replace("-", "_", $name));
         $name2 = 'REDIRECT_' . $name;
 
         return isset($_SERVER[$name]) ? $_SERVER[$name] : (
         isset($_SERVER[$name2]) ? $_SERVER[$name2] : $defaultValue);
-
-//        return CollectionHelper::getOrDefault($_SERVER, $name, $defaultValue);
     }
 
     /**

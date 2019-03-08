@@ -120,11 +120,17 @@ class Mysql extends BaseDb
             $sw = '(' . join(" OR ", $sw) . ')';
             $where = $where ? $where . " AND $sw" : $sw;
         }
-        $w = self::makeWhere($where);
+        if ($where instanceof Sql) {
+            $params = $where->getParams();
+            $w = self::makeWhere($where->getSql());
+        } else {
+            $w = self::makeWhere($where);
+            $params = [];
+        }
 
         $table = self::addQuotes($table);
         $sql = new Sql(
-            "SELECT $cols FROM $table$w$order LIMIT $index, $pageSize;"
+            "SELECT $cols FROM $table$w$order LIMIT $index, $pageSize;", $params
         );
         $result = $this->executeQuery($sql);
         $total = $this->count($table, $where);
@@ -135,9 +141,15 @@ class Mysql extends BaseDb
     {
         $cols = ($fields === null || count($fields) < 1) ? "*" :
             join(", ", array_map("self::addQuotes", $fields));
-        $w = self::makeWhere($where);
+        if ($where instanceof Sql) {
+            $params = $where->getParams();
+            $w = self::makeWhere($where->getSql());
+        } else {
+            $w = self::makeWhere($where);
+            $params = [];
+        }
         $table = self::addQuotes($table);
-        $sql = new Sql("SELECT $cols FROM $table$w LIMIT 0,1;");
+        $sql = new Sql("SELECT $cols FROM $table$w LIMIT 0,1;", $params);
         return CollectionHelper::first($this->executeQuery($sql), null);
     }
 
@@ -249,7 +261,7 @@ class Mysql extends BaseDb
     }
 
     /**
-     * @param $where string|null
+     * @param $where Sql|string|null
      * @return string
      */
     private static function makeWhere($where): string

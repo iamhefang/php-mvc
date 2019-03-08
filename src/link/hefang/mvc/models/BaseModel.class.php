@@ -88,7 +88,7 @@ abstract class BaseModel implements IJsonObject, IMapObject, IModel, \JsonSerial
      * @param int $pageIndex 页码
      * @param int $pageSize 页大小
      * @param string|null $search 要搜索的内容
-     * @param string|null $where where语句
+     * @param Sql|string|null $where where语句
      * @param array|null $sort 排序
      * @return Pager
      * @throws SqlException
@@ -97,7 +97,7 @@ abstract class BaseModel implements IJsonObject, IMapObject, IModel, \JsonSerial
         int $pageIndex,
         int $pageSize = 20,
         string $search = null,
-        string $where = null,
+        $where = null,
         array $sort = null): Pager
     {
         $fields = self::_fields();
