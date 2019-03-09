@@ -139,7 +139,7 @@ class Router implements IMapObject, IJsonObject
      */
     public function setFormat(string $format): Router
     {
-        $this->map["format"] = $format;
+        $this->map["format"] = strtolower($format);
         return $this;
     }
 
@@ -213,9 +213,9 @@ class Router implements IMapObject, IJsonObject
     public static function checkUnderLine(string $str): string
     {
         if (preg_match('/^\d.*?/i', $str)) {
-            return '_' . $str;
+            return '_' . strtolower($str);
         }
-        return $str;
+        return strtolower($str);
     }
 
     public function toJsonString(): string

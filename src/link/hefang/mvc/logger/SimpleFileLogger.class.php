@@ -31,44 +31,44 @@ class SimpleFileLogger implements ILogger
         $this->level = $level;
     }
 
-    public function log(string $name, string $content)
+    public function log($content, string $name = null)
     {
         if ($this->level->getValue() == LogLevel::NONE && !Mvc::isDebug()) return;
         self::write(strtoupper(__FUNCTION__), $name, $content);
     }
 
-    public function notice(string $name, string $content)
+    public function notice($content, string $name = null)
     {
         if ($this->level->getValue() == LogLevel::NOTICE && !Mvc::isDebug()) return;
         self::write(strtoupper(__FUNCTION__), $name, $content);
     }
 
-    public function warn(string $name, string $content, \Throwable $e = null)
+    public function warn($content, string $name = null, \Throwable $e = null)
     {
         if ($this->level->getValue() == LogLevel::WARN && !Mvc::isDebug()) return;
         self::write(strtoupper(__FUNCTION__), $name, $content, $e);
     }
 
-    public function error(string $name, string $content, \Throwable $e = null)
+    public function error($content, string $name = null, \Throwable $e = null)
     {
         if ($this->level->getValue() == LogLevel::ERROR && !Mvc::isDebug()) return;
         self::write(strtoupper(__FUNCTION__), $name, $content, $e);
     }
 
-    public function debug(string $name, string $content)
+    public function debug($content, string $name = null)
     {
         if (!Mvc::isDebug()) return;
         self::write(strtoupper(__FUNCTION__), $name, $content);
     }
 
-    private static function write(string $name, string $title, string $content, \Throwable $exception = null)
+    private static function write(string $name, string $title, $content, \Throwable $exception = null)
     {
         $time = date("Y-m-d H:i:s");
         $dir = PATH_LOGS . DS . date("Y-m") . DS;
         if (!self::$useConsole && !is_dir($dir) && !mkdir($dir, 0770, true)) {
             self::$useConsole = true;
         }
-
+        $name or $name = $title;
         $file = $dir . date("d") . ".log";
         $content = "[$time]($name) $title\n$content\n";
         if ($exception !== null) {
