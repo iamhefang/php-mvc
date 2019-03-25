@@ -49,6 +49,9 @@ HTML;
     public function compile(): BaseView
     {
         $this->isCompiled = true;
+        if ($this->result{0} === '/') {
+            $this->result = Mvc::getUrlPrefix() . $this->result;
+        }
         return $this;
     }
 

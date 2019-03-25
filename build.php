@@ -8,7 +8,7 @@ $cli = "$name.php";
 $version = "SNAPSHOT";
 
 //$fnname = __DIR__ . "/build/$name-$version.phar";
-$fnname = "E:\DevDir\juewei-cms\libraries\php-mvc-SNAPSHOT.phar";
+$fnname = "/mnt/CommonData/DevDir/juewei-cms/libraries/php-mvc-SNAPSHOT.phar";
 
 $flags = FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::KEY_AS_FILENAME;
 

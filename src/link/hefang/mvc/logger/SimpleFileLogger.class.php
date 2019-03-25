@@ -61,7 +61,7 @@ class SimpleFileLogger implements ILogger
         self::write(strtoupper(__FUNCTION__), $name, $content);
     }
 
-    private static function write(string $name, string $title, $content, \Throwable $exception = null)
+    private static function write(string $name, $title, $content, \Throwable $exception = null)
     {
         $time = date("Y-m-d H:i:s");
         $dir = PATH_LOGS . DS . date("Y-m") . DS;
