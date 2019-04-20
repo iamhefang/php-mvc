@@ -9,6 +9,10 @@ use link\hefang\mvc\exceptions\ViewNotCompiledException;
 use link\hefang\mvc\exceptions\ViewNotFoundException;
 use link\hefang\mvc\Mvc;
 
+/**
+ * 模板视图
+ * @package link\hefang\mvc\views
+ */
 class TemplateView extends BaseView
 {
     protected $cacheFilePath = null;
@@ -261,7 +265,6 @@ class TemplateView extends BaseView
     {
         $this->checkCompile();
 
-//        ob_start();
         extract($this->data);
         echo "\n\n\n\n\n\n";
         echo "<!-- Powered By php-mvc -->\n";

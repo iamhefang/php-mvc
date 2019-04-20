@@ -6,6 +6,10 @@ defined('PHP_MVC') or die("Access Refused");
 use link\hefang\mvc\exceptions\ViewNotCompiledException;
 use link\hefang\mvc\Mvc;
 
+/**
+ * 视图基类，所有视图都要直接或间接继承该类
+ * @package link\hefang\mvc\views
+ */
 abstract class BaseView
 {
     protected $contentType;
@@ -14,17 +18,26 @@ abstract class BaseView
     protected $data = [];
     protected $charset = "UTF-8";
 
+    /**
+     * 当前视图的类型
+     * @return string
+     */
     public function getContentType(): string
     {
         return $this->contentType;
     }
 
+    /**
+     * 当前视图大小
+     * @return int
+     */
     public function getContentLength(): int
     {
         return strlen($this->result);
     }
 
     /**
+     * 检查当前视图是否已编译
      * @throws ViewNotCompiledException
      */
     protected function checkCompile()
@@ -33,6 +46,7 @@ abstract class BaseView
     }
 
     /**
+     * 渲染视图
      * @throws ViewNotCompiledException
      */
     public function render()
@@ -57,5 +71,9 @@ abstract class BaseView
         exit(0);
     }
 
+    /**
+     * 编译视图
+     * @return BaseView
+     */
     public abstract function compile(): BaseView;
 }

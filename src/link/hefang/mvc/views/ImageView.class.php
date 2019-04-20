@@ -6,6 +6,10 @@ defined('PHP_MVC') or die("Access Refused");
 use link\hefang\helpers\ObjectHelper;
 
 
+/**
+ * 图片视图，需要后端渲染图片时可以返回该视图
+ * @package link\hefang\mvc\views
+ */
 class ImageView extends BaseView
 {
     /**

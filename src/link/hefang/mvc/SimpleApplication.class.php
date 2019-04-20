@@ -11,6 +11,7 @@ class SimpleApplication implements IApplication
 {
 
     /**
+     * 在系统初始化时回调该方法
      * @return array|null
      */
     function onInit()
@@ -19,8 +20,9 @@ class SimpleApplication implements IApplication
     }
 
     /**
-     * @param string $path
-     * @return Router|null
+     * 在任何请求到达框架时都会回调该方法
+     * @param string $path 请求的路径
+     * @return Router|null 要返回的路由信息
      */
     function onRequest(string $path)
     {
@@ -28,6 +30,7 @@ class SimpleApplication implements IApplication
     }
 
     /**
+     * 在出现未捕获异常时会回调该方法
      * @param \Throwable $e
      * @return BaseView|null
      */

@@ -7,6 +7,10 @@ use link\hefang\mvc\Mvc;
 defined('PHP_MVC') or die("Access Refused");
 
 
+/**
+ * 重定向视图
+ * @package link\hefang\mvc\views
+ */
 class RedirectView extends BaseView
 {
 
@@ -14,8 +18,8 @@ class RedirectView extends BaseView
 
     /**
      * RedirectView constructor.
-     * @param string $url
-     * @param bool $useJavascript
+     * @param string $url 要重定向的url
+     * @param bool $useJavascript 是否使用js进行重定向
      */
     public function __construct(string $url, bool $useJavascript = false)
     {

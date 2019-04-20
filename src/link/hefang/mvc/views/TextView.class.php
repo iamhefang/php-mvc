@@ -4,6 +4,10 @@ namespace link\hefang\mvc\views;
 defined('PHP_MVC') or die("Access Refused");
 
 
+/**
+ * 纯文本视图
+ * @package link\hefang\mvc\views
+ */
 class TextView extends BaseView
 {
     const PLAIN = "text/plain";

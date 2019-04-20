@@ -21,6 +21,10 @@ use link\hefang\mvc\views\RedirectView;
 use link\hefang\mvc\views\TemplateView;
 use link\hefang\mvc\views\TextView;
 
+/**
+ * 控制器基类，所有的控制器都要直接或间接继承该类
+ * @package link\hefang\mvc\controllers
+ */
 abstract class BaseController implements IController, IDULG
 {
     /**
@@ -41,6 +45,7 @@ abstract class BaseController implements IController, IDULG
     }
 
     /**
+     * 控制器名称
      * @return string
      */
     public static function name(): string
@@ -49,12 +54,17 @@ abstract class BaseController implements IController, IDULG
         return str_replace("Controller", "", CollectionHelper::last($class, ""));
     }
 
+    /**
+     * 标记该类是否是一个控制器
+     * @return bool
+     */
     public static function isController(): bool
     {
         return true;
     }
 
     /**
+     * 获取当前路由信息
      * @return Router
      */
     public function getRouter(): Router
@@ -63,6 +73,7 @@ abstract class BaseController implements IController, IDULG
     }
 
     /**
+     * 设置当前路由信息
      * @param Router $router
      */
     public function setRouter(Router $router)
@@ -185,7 +196,6 @@ abstract class BaseController implements IController, IDULG
         if ($view !== null) {
             $view->compile()->render();
         }
-//        return $this->currentLogin;
         return $login;
     }
 
@@ -210,7 +220,6 @@ abstract class BaseController implements IController, IDULG
      */
     public final function _getLogin()
     {
-//        return $this->currentLogin;
         return $this->_session(BaseLoginModel::LOGIN_SESSION_KEY);
     }
 
@@ -243,6 +252,10 @@ abstract class BaseController implements IController, IDULG
         return new SqlSort($key, $type, $nullsFirst);
     }
 
+    /**
+     * 获取当前访问客户端的ip地址
+     * @return string
+     */
     public final function _ip(): string
     {
         if (getenv('HTTP_CLIENT_IP') && strcasecmp(getenv('HTTP_CLIENT_IP'), 'unknown')) {
@@ -259,11 +272,21 @@ abstract class BaseController implements IController, IDULG
         return $ip;
     }
 
+    /**
+     * 获取用户代理字符串
+     * @return string
+     */
     public final function _userAgent(): string
     {
         return $this->_header("User-Agent");
     }
 
+    /**
+     * 生成一个模板视图
+     * @param array|null $data
+     * @param string|null $path
+     * @return BaseView
+     */
     public function _template(array $data = null, string $path = null): BaseView
     {
         $theme = $this->router->getTheme();

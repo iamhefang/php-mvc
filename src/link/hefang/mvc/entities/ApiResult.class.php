@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: hefang
- * Date: 2018/12/3
- * Time: 14:18
- */
 
 namespace link\hefang\mvc\entities;
 
@@ -16,6 +10,7 @@ use link\hefang\mvc\Mvc;
 
 class ApiResult implements IJsonObject, IMapObject, \JsonSerializable
 {
+    private $code = 200;
     private $success = false;
     private $result = null;
     private $needLogin = false;
@@ -37,6 +32,7 @@ class ApiResult implements IJsonObject, IMapObject, \JsonSerializable
      * @param bool $needPermission
      * @param bool $needUnlock
      * @param bool $needDeveloper
+     * @param int|null $code
      */
     public function __construct(
         bool $success = false,
@@ -47,7 +43,8 @@ class ApiResult implements IJsonObject, IMapObject, \JsonSerializable
         bool $needSuperAdmin = false,
         bool $needPermission = false,
         bool $needUnlock = false,
-        bool $needDeveloper = false
+        bool $needDeveloper = false,
+        int $code = null
     )
     {
         $this->success = $success;
@@ -59,6 +56,7 @@ class ApiResult implements IJsonObject, IMapObject, \JsonSerializable
         $this->needPermission = $needPermission;
         $this->needUnlock = $needUnlock;
         $this->needDeveloper = $needDeveloper;
+        $this->code = $success ? 200 : $code;
     }
 
     /**
@@ -233,7 +231,8 @@ class ApiResult implements IJsonObject, IMapObject, \JsonSerializable
     {
         $map = [
             "success" => $this->success,
-            "result" => $this->result
+            "result" => $this->result,
+            "code" => $this->code
         ];
         if ($this->needLogin) {
             $map["needLogin"] = true;
