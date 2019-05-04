@@ -10,7 +10,6 @@ use link\hefang\mvc\Mvc;
 
 class ApiResult implements IJsonObject, IMapObject, \JsonSerializable
 {
-    private $code = 200;
     private $success = false;
     private $result = null;
     private $needLogin = false;
@@ -32,7 +31,6 @@ class ApiResult implements IJsonObject, IMapObject, \JsonSerializable
      * @param bool $needPermission
      * @param bool $needUnlock
      * @param bool $needDeveloper
-     * @param int|null $code
      */
     public function __construct(
         bool $success = false,
@@ -43,8 +41,7 @@ class ApiResult implements IJsonObject, IMapObject, \JsonSerializable
         bool $needSuperAdmin = false,
         bool $needPermission = false,
         bool $needUnlock = false,
-        bool $needDeveloper = false,
-        int $code = null
+        bool $needDeveloper = false
     )
     {
         $this->success = $success;
@@ -56,7 +53,6 @@ class ApiResult implements IJsonObject, IMapObject, \JsonSerializable
         $this->needPermission = $needPermission;
         $this->needUnlock = $needUnlock;
         $this->needDeveloper = $needDeveloper;
-        $this->code = $success ? 200 : $code;
     }
 
     /**
@@ -231,8 +227,7 @@ class ApiResult implements IJsonObject, IMapObject, \JsonSerializable
     {
         $map = [
             "success" => $this->success,
-            "result" => $this->result,
-            "code" => $this->code
+            "result" => $this->result
         ];
         if ($this->needLogin) {
             $map["needLogin"] = true;
@@ -266,13 +261,6 @@ class ApiResult implements IJsonObject, IMapObject, \JsonSerializable
         return $map;
     }
 
-    /**
-     * Specify data which should be serialized to JSON
-     * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
-     * which is a value of any type other than a resource.
-     * @since 5.4.0
-     */
     public function jsonSerialize()
     {
         return $this->toMap();

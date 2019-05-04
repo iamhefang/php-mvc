@@ -8,12 +8,14 @@ use link\hefang\helpers\ObjectHelper;
 use link\hefang\helpers\StringHelper;
 use link\hefang\mvc\databases\SqlSort;
 use link\hefang\mvc\entities\ApiResult;
+use link\hefang\mvc\entities\CodeResult;
 use link\hefang\mvc\entities\Router;
 use link\hefang\mvc\interfaces\IController;
 use link\hefang\mvc\interfaces\IDULG;
 use link\hefang\mvc\models\BaseLoginModel;
 use link\hefang\mvc\Mvc;
 use link\hefang\mvc\views\BaseView;
+use link\hefang\mvc\views\CodeView;
 use link\hefang\mvc\views\ErrorView;
 use link\hefang\mvc\views\FileView;
 use link\hefang\mvc\views\ImageView;
@@ -87,7 +89,7 @@ abstract class BaseController implements IController, IDULG
      * @param null|string|int|float $defaultValue
      * @return mixed
      */
-    public final function _get(string $name, $defaultValue = null)
+    public function _get(string $name, $defaultValue = null)
     {
         ObjectHelper::checkNull($name);
         return CollectionHelper::getOrDefault($_GET, $name, $defaultValue);
@@ -98,7 +100,7 @@ abstract class BaseController implements IController, IDULG
      * @param null|string|int|float $defaultValue
      * @return mixed
      */
-    public final function _post(string $name, $defaultValue = null)
+    public function _post(string $name, $defaultValue = null)
     {
         ObjectHelper::checkNull($name);
         return CollectionHelper::getOrDefault($this->___post, $name, $defaultValue);
@@ -109,7 +111,7 @@ abstract class BaseController implements IController, IDULG
      * @param null|string|int|float $defaultValue
      * @return mixed
      */
-    public final function _cookie(string $name, $defaultValue = null)
+    public function _cookie(string $name, $defaultValue = null)
     {
         ObjectHelper::checkNull($name);
         return CollectionHelper::getOrDefault($_COOKIE, $name, $defaultValue);
@@ -120,7 +122,7 @@ abstract class BaseController implements IController, IDULG
      * @param null|string|int|float $defaultValue
      * @return mixed
      */
-    public final function _request(string $name, $defaultValue = null)
+    public function _request(string $name, $defaultValue = null)
     {
         ObjectHelper::checkNull($name);
         return CollectionHelper::getOrDefault($this->___request, $name, $defaultValue);
@@ -150,7 +152,7 @@ abstract class BaseController implements IController, IDULG
      * @param string|null $defaultValue
      * @return string|null
      */
-    public final function _header(string $name, string $defaultValue = null)
+    public function _header(string $name, string $defaultValue = null)
     {
         $name = "HTTP_" . strtoupper(str_replace("-", "_", $name));
         $name2 = 'REDIRECT_' . $name;
@@ -170,7 +172,7 @@ abstract class BaseController implements IController, IDULG
      * @param bool $needDeveloper
      * @return BaseLoginModel
      */
-    public final function _checkLogin(string $message = null
+    public function _checkLogin(string $message = null
         , bool $needAdmin = false
         , bool $needSuperAdmin = false
         , array $needRoleIds = []
@@ -199,17 +201,17 @@ abstract class BaseController implements IController, IDULG
         return $login;
     }
 
-    public final function _checkAdmin(string $message = null): BaseLoginModel
+    public function _checkAdmin(string $message = null): BaseLoginModel
     {
         return $this->_checkLogin($message, true);
     }
 
-    public final function _checkSuperAdmin(string $message = null): BaseLoginModel
+    public function _checkSuperAdmin(string $message = null): BaseLoginModel
     {
         return $this->_checkLogin($message, true, true);
     }
 
-    public final function _checkRoleId(array $roleIds = null, string $message = null): BaseLoginModel
+    public function _checkRoleId(array $roleIds = null, string $message = null): BaseLoginModel
     {
         return $this->_checkLogin($message, false, false, $roleIds);
     }
@@ -218,17 +220,17 @@ abstract class BaseController implements IController, IDULG
      * 获取当前登录用户, 不检查
      * @return BaseLoginModel|null
      */
-    public final function _getLogin()
+    public function _getLogin()
     {
         return $this->_session(BaseLoginModel::LOGIN_SESSION_KEY);
     }
 
-    public final function _pageIndex(int $defaultValue = 1): int
+    public function _pageIndex(int $defaultValue = 1): int
     {
         return intval($this->_request("pageIndex", $defaultValue));
     }
 
-    public final function _pageSize(int $defaultValue = 20): int
+    public function _pageSize(int $defaultValue = 20): int
     {
         return intval($this->_request("pageSize", $defaultValue));
     }
@@ -239,7 +241,7 @@ abstract class BaseController implements IController, IDULG
      * @param bool $nullsFirst
      * @return SqlSort|null
      */
-    public final function _sort(
+    public function _sort(
         string $key = null,
         string $type = null,
         bool $nullsFirst = null)
@@ -256,7 +258,7 @@ abstract class BaseController implements IController, IDULG
      * 获取当前访问客户端的ip地址
      * @return string
      */
-    public final function _ip(): string
+    public function _ip(): string
     {
         if (getenv('HTTP_CLIENT_IP') && strcasecmp(getenv('HTTP_CLIENT_IP'), 'unknown')) {
             $ip = getenv('HTTP_CLIENT_IP');
@@ -276,7 +278,7 @@ abstract class BaseController implements IController, IDULG
      * 获取用户代理字符串
      * @return string
      */
-    public final function _userAgent(): string
+    public function _userAgent(): string
     {
         return $this->_header("User-Agent");
     }
@@ -325,22 +327,22 @@ abstract class BaseController implements IController, IDULG
      * @param string $imageType 文件类型
      * @return BaseView
      */
-    public final function _image($img, string $imageType = 'image/png'): BaseView
+    public function _image($img, string $imageType = 'image/png'): BaseView
     {
         return new ImageView($img, $imageType);
     }
 
-    public final function _text(string $text, string $contentType = "text/plain"): BaseView
+    public function _text(string $text, string $contentType = "text/plain"): BaseView
     {
         return new TextView($text, $contentType);
     }
 
-    public final function _redirect(string $url, bool $useJavascript = false): BaseView
+    public function _redirect(string $url, bool $useJavascript = false): BaseView
     {
         return new RedirectView($url, $useJavascript);
     }
 
-    public final function _error(int $code, string $message = null): BaseView
+    public function _error(int $code, string $message = null): BaseView
     {
         return new ErrorView($code, $message);
     }
@@ -350,23 +352,80 @@ abstract class BaseController implements IController, IDULG
      * @param string|null $mimeType
      * @return BaseView
      */
-    public final function _file(string $filename, string $mimeType = null): BaseView
+    public function _file(string $filename, string $mimeType = null): BaseView
     {
         return new FileView($filename, $mimeType);
     }
 
-    public final function _api(ApiResult $result): BaseView
+    public function _api(ApiResult $result): BaseView
     {
         ObjectHelper::checkNull($result);
         return $this->_text($result->toJsonString(), TextView::JSON);
     }
 
-    public final function _apiSuccess($result = "ok"): BaseView
+    public function _code($result, int $code = 200, string $message = null)
+    {
+        $message = $message ? $message : CollectionHelper::getOrDefault(CodeView::HTTP_STATUS_CODE, $code, "Unknown Code");
+        return new CodeView(new CodeResult($code, $message, $result));
+    }
+
+    /**
+     * 请求成功
+     * @param string $result
+     * @return CodeView
+     */
+    public function _codeOk($result = "ok")
+    {
+        return $this->_code($result, 200, "ok");
+    }
+
+    /**
+     * 内容新建成功
+     * @param string $result
+     * @return CodeView
+     */
+    public function _codeCreated($result = "新建成功")
+    {
+        return $this->_code($result, 201);
+    }
+
+    /**
+     * 请求的内容未找到
+     * @param string $result
+     * @return CodeView
+     */
+    public function _codeNotFound($result = "请求的内容未找到")
+    {
+        return $this->_code($result, 404);
+    }
+
+    /**
+     * 权限不够
+     * @param string $result
+     * @return CodeView
+     */
+    public function _codeForbidden($result = "您无权访问该内容")
+    {
+        return $this->_code($result, 403);
+    }
+
+    /**
+     * 当前需要登录
+     * @param string $result
+     * @return CodeView
+     */
+    public function _codeUnauthorized($result = "您需要登录后才能访问")
+    {
+        return $this->_code($result, 401);
+    }
+
+
+    public function _apiSuccess($result = "ok"): BaseView
     {
         return $this->_api(new ApiResult(true, $result));
     }
 
-    public final function _apiFailed(
+    public function _apiFailed(
         string $reason,
         bool $needLogin = false
         , bool $needPassword = false
@@ -384,37 +443,37 @@ abstract class BaseController implements IController, IDULG
         ));
     }
 
-    public final function _needLogin(string $message = null): BaseView
+    public function _needLogin(string $message = null): BaseView
     {
         $message = StringHelper::isNullOrBlank($message) ? "您当前未登录或登录已超时, 请登录后重试" : $message;
         return $this->_apiFailed($message, true);
     }
 
-    public final function _needSuperAdmin(string $message = null): BaseView
+    public function _needSuperAdmin(string $message = null): BaseView
     {
         $message = StringHelper::isNullOrBlank($message) ? "当前功能只有超级管理员才能使用" : $message;
         return $this->_apiFailed($message, false, false, true, true);
     }
 
-    public final function _needAdmin(string $message = null): BaseView
+    public function _needAdmin(string $message = null): BaseView
     {
         $message = StringHelper::isNullOrBlank($message) ? "当前功能只有管理员才能使用" : $message;
         return $this->_apiFailed($message, false, false, true);
     }
 
-    public final function _needPassword(string $message = "请输入密码"): BaseView
+    public function _needPassword(string $message = "请输入密码"): BaseView
     {
         $message = StringHelper::isNullOrBlank($message) ? "请输入密码" : $message;
         return $this->_apiFailed($message, false, true);
     }
 
-    public final function _needPermission(string $message = null): BaseView
+    public function _needPermission(string $message = null): BaseView
     {
         $message = StringHelper::isNullOrBlank($message) ? "您无权使用该功能" : $message;
         return $this->_apiFailed($message, false, false, false, false, true);
     }
 
-    public final function _needUnlock(string $message = null): BaseView
+    public function _needUnlock(string $message = null): BaseView
     {
         $message = StringHelper::isNullOrBlank($message) ? "您已锁屏, 请先解锁" : $message;
         return $this->_apiFailed($message, false, false, false, false, false, true);
