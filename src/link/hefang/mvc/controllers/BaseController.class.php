@@ -40,6 +40,10 @@ abstract class BaseController implements IController, IDULG
     private $___post = [];
     private $___request = [];
 
+    /**
+     * 返回控制器所属模块名
+     * @return string
+     */
     public static function module(): string
     {
         $class = explode("\\", get_called_class());
