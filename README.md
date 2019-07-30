@@ -1,5 +1,7 @@
 # php-mvc
 
+[帮助文档](https://github.com/iamhefang/php-mvc/wiki)
+
 ## 目录结构应为
 
 - 项目根目录
