@@ -24,7 +24,7 @@ abstract class BaseDb
      * @param string $username
      * @param string $password
      * @param string $database
-     * @param string|null $charset
+     * @param string $charset
      * @param int $port
      */
     public function __construct(
@@ -164,8 +164,8 @@ abstract class BaseDb
      * @param string $table
      * @param string $column
      * @param Sql|string|null $where
-     * @throws SqlException
      * @return float
+     * @throws SqlException
      */
     public abstract function max(string $table, string $column, $where = null): float;
 
@@ -174,8 +174,8 @@ abstract class BaseDb
      * @param string $table
      * @param string $column
      * @param Sql|string|null $where
-     * @throws SqlException
      * @return float
+     * @throws SqlException
      */
     public abstract function min(string $table, string $column, $where = null): float;
 

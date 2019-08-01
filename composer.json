@@ -2,6 +2,7 @@
   "require": {
     "hefang/php-helpers": "dev-master",
     "ext-json": "*",
-    "ext-gd": "*"
+    "ext-gd": "*",
+    "ext-pdo": "*"
   }
 }

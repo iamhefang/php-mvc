@@ -1,4 +1,5 @@
 <?php
+
 namespace link\hefang\mvc\caches;
 defined('PHP_MVC') or die("Access Refused");
 
@@ -9,7 +10,6 @@ use link\hefang\helpers\ObjectHelper;
 use link\hefang\helpers\StringHelper;
 use link\hefang\interfaces\ICache;
 use link\hefang\mvc\exceptions\InvalidCachePath;
-use link\hefang\mvc\Mvc;
 
 class SimpleCache implements ICache
 {

@@ -5,6 +5,7 @@ defined('PHP_MVC') or die("Access Refused");
 
 
 use link\hefang\interfaces\ICache;
+
 //todo: radius 缓存待实现
 class RadiusCache implements ICache
 {
