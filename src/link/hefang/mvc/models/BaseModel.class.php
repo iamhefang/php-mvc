@@ -34,8 +34,8 @@ abstract class BaseModel implements IJsonObject, IMapObject, IModel, \JsonSerial
      * 从数据库中读取一条数据
      * @param string $id 主键值
      * @return BaseModel
-     * @throws SqlException
      * @throws ModelException
+     * @throws SqlException
      */
     public static function get(string $id): BaseModel
     {

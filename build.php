@@ -13,7 +13,7 @@ $fnname = "/mnt/CommonData/DevDir/juewei-cms/libraries/php-mvc-SNAPSHOT.phar";
 $flags = FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::KEY_AS_FILENAME;
 
 $indexFile = __DIR__ . "/src/" . $web;
-$indexContent = file_get_contents(__DIR__ . "/php-mvc-templeta.php");
+$indexContent = file_get_contents(__DIR__ . "/php-mvc-template.php");
 $indexContent = str_replace("!!VERSION!!", $version, $indexContent);
 
 
@@ -27,7 +27,7 @@ $phar->buildFromDirectory(__DIR__ . "/src");
 $stub = str_replace(
     "ExtractPhar",
     "ExtractPhar" . md5(microtime() . rand(PHP_INT_MIN, PHP_INT_MAX)),
-    file_get_contents("stub_templete.php")
+    file_get_contents("stub_template.php")
 );
 $stub = str_replace("!!WEB_ENTRY!!", $web, $stub);
 $stub = str_replace("!!CLI_ENTRY!!", $cli, $stub);

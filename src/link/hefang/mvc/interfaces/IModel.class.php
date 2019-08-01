@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: hefang
- * Date: 2018/12/3
- * Time: 14:29
- */
 
 namespace link\hefang\mvc\interfaces;
 

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: hefang
- * Date: 2018/12/11
- * Time: 19:26
- */
 
 namespace link\hefang\mvc\databases;
 

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: hefang
- * Date: 2018/12/4
- * Time: 13:32
- */
 
 namespace link\hefang\mvc\exceptions;
 

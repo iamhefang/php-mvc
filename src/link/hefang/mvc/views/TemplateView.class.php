@@ -243,18 +243,7 @@ class TemplateView extends BaseView
 
             }, $content);
 
-            try {
-                $model = ArticleModel::get($id);
-                if ($model->isExist()) {
-
-                } else {
-
-                }
-            } catch (\Throwable $exception) {
-
-            }
-
-            $res = "<?php try { \${$var} = Model::get('{$id}'); if(\${$var}->isExist()) {{$content}} else {}}catch(\Throwable \$){} ?>";
+            $res = "<?php try { \${$var} = Model::get('{$id}'); if(\${$var}->isExist()) {{$content}} else {}}catch(\Throwable \$e){} ?>";
 
             return "<!-- todo: 模型编译未完成 -->";
         }, $php);
@@ -266,12 +255,6 @@ class TemplateView extends BaseView
         $this->checkCompile();
 
         extract($this->data);
-        echo "\n\n\n\n\n\n";
-        echo "<!-- Powered By php-mvc -->\n";
-        echo "<!-- 作者: hefang -->\n";
-        echo "<!-- 博客: https://hefang.link -->\n";
-        echo "<!-- 微信公众号: hefangblog -->\n";
-        echo "\n\n\n\n\n\n";
 
         include $this->cacheFilePath;
 
