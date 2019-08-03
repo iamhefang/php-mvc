@@ -3,7 +3,9 @@
 namespace link\hefang\mvc\exceptions;
 
 
-class InvalidCachePath extends \RuntimeException
+use RuntimeException;
+
+class InvalidCachePath extends RuntimeException
 {
 
 }

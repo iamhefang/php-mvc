@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 $name = "php-mvc";
 
@@ -7,8 +8,11 @@ $cli = "$name.php";
 //$version = '0.0.3';
 $version = "SNAPSHOT";
 
-//$fnname = __DIR__ . "/build/$name-$version.phar";
-$fnname = "/mnt/CommonData/DevDir/juewei-cms/libraries/php-mvc-SNAPSHOT.phar";
+$fnname = __DIR__ . "/build/$name-$version.phar";
+if (!file_exists(__DIR__ . "/build/")) {
+	mkdir(__DIR__ . "/build/");
+}
+//$fnname = "/mnt/CommonData/DevDir/juewei-cms/libraries/php-mvc-SNAPSHOT.phar";
 
 $flags = FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::KEY_AS_FILENAME;
 
@@ -25,9 +29,9 @@ $phar = new Phar($fnname, $flags, "$name.phar");
 $phar->buildFromDirectory(__DIR__ . "/src");
 
 $stub = str_replace(
-    "ExtractPhar",
-    "ExtractPhar" . md5(microtime() . rand(PHP_INT_MIN, PHP_INT_MAX)),
-    file_get_contents("stub_template.php")
+	"ExtractPhar",
+	"ExtractPhar" . md5(microtime() . rand(PHP_INT_MIN, PHP_INT_MAX)),
+	file_get_contents("stub_template.php")
 );
 $stub = str_replace("!!WEB_ENTRY!!", $web, $stub);
 $stub = str_replace("!!CLI_ENTRY!!", $cli, $stub);

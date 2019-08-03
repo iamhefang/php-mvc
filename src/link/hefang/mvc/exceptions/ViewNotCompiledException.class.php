@@ -3,7 +3,9 @@
 namespace link\hefang\mvc\exceptions;
 
 
-class ViewNotCompiledException extends \RuntimeException
+use RuntimeException;
+
+class ViewNotCompiledException extends RuntimeException
 {
 
 }

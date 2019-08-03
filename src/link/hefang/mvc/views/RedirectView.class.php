@@ -14,18 +14,18 @@ defined('PHP_MVC') or die("Access Refused");
 class RedirectView extends BaseView
 {
 
-    private $useJavascript = false;
+	private $useJavascript = false;
 
-    /**
-     * RedirectView constructor.
-     * @param string $url 要重定向的url
-     * @param bool $useJavascript 是否使用js进行重定向
-     */
-    public function __construct(string $url, bool $useJavascript = false)
-    {
-        $this->useJavascript = $useJavascript;
-        if ($useJavascript) {
-            $this->result = <<<HTML
+	/**
+	 * RedirectView constructor.
+	 * @param string $url 要重定向的url
+	 * @param bool $useJavascript 是否使用js进行重定向
+	 */
+	public function __construct(string $url, bool $useJavascript = false)
+	{
+		$this->useJavascript = $useJavascript;
+		if ($useJavascript) {
+			$this->result = <<<HTML
 <!doctype html>
 <html lang="zh">
 <head>
@@ -39,37 +39,37 @@ class RedirectView extends BaseView
 <body>
 <a href="$url" target="_self" style="display: none;" id="link">立即跳转</a>
 <script>setTimeout(function() {
-    var link = document.getElementById("link")
+    var link = document.getElementById("link");
     link.style.display="block";
 },2000);</script>
 </body>
 </html>
 HTML;
-        } else {
-            $this->result = $url;
-        }
-    }
+		} else {
+			$this->result = $url;
+		}
+	}
 
-    public function compile(): BaseView
-    {
-        $this->isCompiled = true;
-        if ($this->result{0} === '/') {
-            $this->result = Mvc::getUrlPrefix() . $this->result;
-        }
-        return $this;
-    }
+	public function compile(): BaseView
+	{
+		$this->isCompiled = true;
+		if ($this->result{0} === '/') {
+			$this->result = Mvc::getUrlPrefix() . $this->result;
+		}
+		return $this;
+	}
 
-    public function render()
-    {
-        $this->checkCompile();
-        Mvc::isDebug() or @ob_clean();
-        if ($this->useJavascript) {
-            echo $this->result;
-            @ob_end_flush();
-        } else {
-            header("Location: $this->result");
-            @ob_end_flush();
-        }
-        exit(0);
-    }
+	public function render()
+	{
+		$this->checkCompile();
+		Mvc::isDebug() or @ob_clean();
+		if ($this->useJavascript) {
+			echo $this->result;
+			@ob_end_flush();
+		} else {
+			header("Location: $this->result");
+			@ob_end_flush();
+		}
+		exit(0);
+	}
 }

@@ -3,7 +3,9 @@
 namespace link\hefang\mvc\exceptions;
 
 
-class ModelException extends \Exception
+use Exception;
+
+class ModelException extends Exception
 {
 
 }
