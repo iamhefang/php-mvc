@@ -115,7 +115,7 @@ class Router implements IMapObject, IJsonObject
 	 */
 	public function setCmd(string $cmd): Router
 	{
-		$this->map["cmd"] = self::checkUnderLine($cmd);
+		$this->map["cmd"] = $cmd;
 		return $this;
 	}
 
