@@ -5,19 +5,23 @@ $name = "php-mvc";
 $web = "$name.php";
 $cli = "$name.php";
 
-//$version = '0.0.3';
-$version = "SNAPSHOT";
+$composerJson = json_decode(file_get_contents("./composer.json"), true);
+
+//$version = date("Y.m.d");
+//$version = "SNAPSHOT";
+$version = $composerJson["version"];
 
 $fnname = __DIR__ . "/build/$name-$version.phar";
-if (!file_exists(__DIR__ . "/build/")) {
-	mkdir(__DIR__ . "/build/");
-}
 //$fnname = "/mnt/CommonData/DevDir/juewei-cms/libraries/php-mvc-SNAPSHOT.phar";
+
+if (!file_exists(__DIR__ . "/build/")) {
+	mkdir(__DIR__ . "/build/", 0777, true);
+}
 
 $flags = FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::KEY_AS_FILENAME;
 
 $indexFile = __DIR__ . "/src/" . $web;
-$indexContent = file_get_contents(__DIR__ . "/php-mvc-template.php");
+$indexContent = file_get_contents(__DIR__ . "/$name-template.php");
 $indexContent = str_replace("!!VERSION!!", $version, $indexContent);
 
 

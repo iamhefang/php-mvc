@@ -1,6 +1,30 @@
 {
+  "name": "hefang/php-mvc",
+  "type": "library",
+  "description": "轻量级MVC框架",
+  "version": "1.0.0",
+  "keywords": [
+    "框架",
+    "mvc",
+    "framework"
+  ],
+  "homepage": "https://github.com/iamhefang/php-helpers",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "何方",
+      "email": "he@hefang.link",
+      "homepage": "https://hefang.link",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "files": [
+      "src/php-mvc.php"
+    ]
+  },
   "require": {
-    "hefang/php-helpers": "dev-master",
+    "hefang/php-helpers": "1.0.0",
     "ext-json": "*",
     "ext-gd": "*",
     "ext-pdo": "*"
