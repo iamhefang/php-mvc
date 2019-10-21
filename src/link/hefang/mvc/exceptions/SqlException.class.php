@@ -1,11 +1,11 @@
 <?php
 
 namespace link\hefang\mvc\exceptions;
+defined('PHP_MVC') or die("Access Refused");
 
 use Exception;
 use Throwable;
 
-defined('PROJECT_NAME') or die("Access Refused");
 
 class SqlException extends Exception
 {
