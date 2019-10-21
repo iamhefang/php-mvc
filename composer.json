@@ -1,14 +1,14 @@
 {
   "name": "hefang/php-mvc",
   "type": "library",
-  "description": "轻量级MVC框架",
+  "description": "轻量级, 高性能MVC框架",
   "version": "1.0.0",
   "keywords": [
     "框架",
     "mvc",
     "framework"
   ],
-  "homepage": "https://github.com/iamhefang/php-helpers",
+  "homepage": "https://github.com/iamhefang/php-mvc",
   "license": "MIT",
   "authors": [
     {
@@ -21,6 +21,17 @@
   "autoload": {
     "files": [
       "src/php-mvc.php"
+    ]
+  },
+  "archive": {
+    "exclude": [
+      "/stub_template.php",
+      "/php-mvc.iml",
+      "/composer.phar",
+      "/build.php",
+      "/.editorconfig",
+      "/.gitignore",
+      "/php-mvc-template.php"
     ]
   },
   "require": {
