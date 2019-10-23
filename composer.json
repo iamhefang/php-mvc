@@ -2,7 +2,7 @@
   "name": "hefang/php-mvc",
   "type": "library",
   "description": "轻量级, 高性能MVC框架",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "keywords": [
     "框架",
     "mvc",
@@ -12,7 +12,7 @@
   "license": "MIT",
   "authors": [
     {
-      "name": "何方",
+      "name": "hefang",
       "email": "he@hefang.link",
       "homepage": "https://hefang.link",
       "role": "Developer"

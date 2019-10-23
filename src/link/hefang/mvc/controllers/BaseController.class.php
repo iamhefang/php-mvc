@@ -368,7 +368,7 @@ abstract class BaseController implements IController, IDULG
 		return $this->_text($result->toJsonString(), TextView::JSON);
 	}
 
-	public function _code($result, int $code = 200, string $message = null)
+	public function _apiCode($result, int $code = 200, string $message = null)
 	{
 		$message = $message ? $message : CollectionHelper::getOrDefault(CodeView::HTTP_STATUS_CODE, $code, "Unknown Code");
 		return new CodeView(new CodeResult($code, $message, $result));
@@ -379,9 +379,9 @@ abstract class BaseController implements IController, IDULG
 	 * @param string $result
 	 * @return CodeView
 	 */
-	public function _codeOk($result = "ok")
+	public function _apiCodeOk($result = "ok")
 	{
-		return $this->_code($result, 200, "ok");
+		return $this->_apiCode($result, 200, CodeView::HTTP_STATUS_CODE[200]);
 	}
 
 	/**
@@ -389,9 +389,9 @@ abstract class BaseController implements IController, IDULG
 	 * @param string $result
 	 * @return CodeView
 	 */
-	public function _codeCreated($result = "新建成功")
+	public function _apiCodeCreated($result = "新建成功")
 	{
-		return $this->_code($result, 201);
+		return $this->_apiCode($result, 201, CodeView::HTTP_STATUS_CODE[201]);
 	}
 
 	/**
@@ -399,9 +399,9 @@ abstract class BaseController implements IController, IDULG
 	 * @param string $result
 	 * @return CodeView
 	 */
-	public function _codeNotFound($result = "请求的内容未找到")
+	public function _apiCodeNotFound($result = "请求的内容未找到")
 	{
-		return $this->_code($result, 404);
+		return $this->_apiCode($result, 404, CodeView::HTTP_STATUS_CODE[404]);
 	}
 
 	/**
@@ -409,9 +409,20 @@ abstract class BaseController implements IController, IDULG
 	 * @param string $result
 	 * @return CodeView
 	 */
-	public function _codeForbidden($result = "您无权访问该内容")
+	public function _apiCodeForbidden($result = "您无权访问该内容")
 	{
-		return $this->_code($result, 403);
+		return $this->_apiCode($result, 403, CodeView::HTTP_STATUS_CODE[403]);
+	}
+
+	/**
+	 * 代码出现异常
+	 * @param \Exception $exception
+	 * @param string|null $message
+	 * @return CodeView
+	 */
+	public function _apiCodeServerError(\Exception $exception, string $message = null)
+	{
+		return $this->_apiCode($message ?: $exception->getMessage(), 500, CodeView::HTTP_STATUS_CODE[500]);
 	}
 
 	/**
@@ -419,9 +430,9 @@ abstract class BaseController implements IController, IDULG
 	 * @param string $result
 	 * @return CodeView
 	 */
-	public function _codeUnauthorized($result = "您需要登录后才能访问")
+	public function _apiCodeUnauthorized($result = "您需要登录后才能访问")
 	{
-		return $this->_code($result, 401);
+		return $this->_apiCode($result, 401, CodeView::HTTP_STATUS_CODE[401]);
 	}
 
 

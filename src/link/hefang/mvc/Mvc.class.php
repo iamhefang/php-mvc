@@ -32,7 +32,7 @@ use Throwable;
 
 class Mvc
 {
-	const VERSION = PHP_MVC_VERSION;
+	const VERSION = PHP_MVC;
 
 	private static $pathInfoType = "PATH_INFO";
 
@@ -418,6 +418,7 @@ class Mvc
 
 	private static function initProject()
 	{
+		self::$authType = strtoupper(self::getProperty("project.auth.type", "SESSION"));
 		self::$pathInfoType = strtoupper(self::getProperty("pathinfo.type", "PATH_INFO"));
 		self::$debug = ParseHelper::parseBoolean(self::getProperty("debug.enable", false));
 		self::$projectPackage = self::getProperty("project.package", self::$projectPackage);
@@ -439,6 +440,10 @@ class Mvc
 
 		if (!in_array(self::$pathInfoType, ["PATH_INFO", "QUERY_STRING"])) {
 			self::$pathInfoType = "PATH_INFO";
+		}
+
+		if (!in_array(self::$authType, ['TOKEN', 'SESSION', 'BOTH'])) {
+			self::$authType = 'SESSION';
 		}
 
 //        self::$logger->notice("读取项目默认值", join("", [
@@ -511,7 +516,7 @@ class Mvc
 			$config = self::$application->onInit();
 			is_array($config) and self::$globalConfig = $config;
 		} else {
-			self::$logger->error("应用程序类就为'IApplication'的实现类", $appClass);
+			self::$logger->error("应用程序类应为'IApplication'的实现类", $appClass);
 		}
 	}
 
@@ -530,7 +535,7 @@ class Mvc
 		$pkgs = array_map(function ($pkg) {
 			return str_replace(".", "\\", $pkg);
 		}, $pkgs);
-//        self::$logger->notice('正在从' . count($pkgs) . "个包中读取控制器", join("\n", $pkgs));
+		self::$logger->notice('正在从' . count($pkgs) . "个包中读取控制器", join("\n", $pkgs));
 		$classes = [];
 
 		foreach (ClassHelper::getClassPaths() as $classPath) {
@@ -592,7 +597,7 @@ CONTROLLERS;
 		$startTime = TimeHelper::formatMillis();
 		$os = PHP_OS;
 		$phpVersion = PHP_VERSION;
-		$mvcVersion = PHP_MVC_VERSION;
+		$mvcVersion = PHP_MVC;
 		$pathRoot = PATH_ROOT;
 		$pathApplication = PATH_APPLICATION;
 		$pathThemes = PATH_THEMES;
@@ -648,7 +653,8 @@ INFO
 	{
 		ob_start();
 		if (self::$pathInfoType === "QUERY_STRING") {
-			$path = CollectionHelper::getOrDefault($_GET, "pathinfo", "/");
+			$qsKey = Mvc::getProperty("project.pathinfo.querystring.key", "_");
+			$path = CollectionHelper::getOrDefault($_GET, $qsKey, "/");
 		} else {
 			$path = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : (
 			isset($_SERVER["ORIG_PATH_INFO"]) ? $_SERVER["ORIG_PATH_INFO"] : (

@@ -6,8 +6,14 @@ defined('PHP_MVC') or die('Access Refused');
  */
 return [
 	'debug.enable' => false,
-	'pathinfo.type' => 'PATH_INFO',
 	'project.package' => null,
+	'project.application.class' => null,
+	'project.pathinfo.type' => 'PATH_INFO', //PATH_INFO, QUERY_STRING
+	'project.pathinfo.querystring.key' => '_',
+	'project.auth.type' => 'TOKEN', //TOKEN, SESSION, BOTH
+	'project.custom.header' => [
+		'Powered By' => "php-mvc " . PHP_MVC
+	],
 	'database.enable' => false,
 	'database.class' => 'link.hefang.mvc.databases.Mysql',
 	'database.host' => 'localhost',
@@ -25,5 +31,5 @@ return [
 	'default.theme' => 'default',
 	'default.locale' => 'zh_CN',
 	'prefix.url.main' => '/index.php',
-	'prefix.url.file' => '/files'
+	'prefix.url.file' => '/files',
 ];

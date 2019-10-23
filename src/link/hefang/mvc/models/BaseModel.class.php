@@ -280,7 +280,12 @@ abstract class BaseModel implements IJsonObject, IMapObject, IModel, JsonSeriali
 	{
 		$class = get_called_class();
 		$method = str_replace('_', '', __FUNCTION__);
-		return $class::$method();
+		$fields = $class::$method();
+		$finalFields = [];
+		foreach ($fields as $key => $value) {
+			$finalFields[is_numeric($key) ? $value : $key] = $value;
+		}
+		return $finalFields;
 	}
 
 	private static function _readOnly(): bool
