@@ -42,3 +42,4 @@ $stub = str_replace("!!CLI_ENTRY!!", $cli, $stub);
 $phar->setStub($stub);
 
 $phar->compressFiles(Phar::GZ);
+

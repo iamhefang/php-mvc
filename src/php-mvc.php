@@ -1,6 +1,6 @@
 <?php /** @noinspection ALL */
 defined("PHP_MVC_ROOT") or define("PHP_MVC_ROOT", __DIR__);
-define("PHP_MVC", "1.0.2");
+define("PHP_MVC", "1.0.3");
 define("DS", DIRECTORY_SEPARATOR);
 
 defined("PATH_ROOT") or define("PATH_ROOT", $_SERVER["DOCUMENT_ROOT"]);

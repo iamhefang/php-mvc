@@ -506,6 +506,7 @@ class Mvc
 		if (StringHelper::isNullOrBlank($appClass)) {
 			$appClass = self::$projectPackage . "\\Application";
 		}
+		$appClass = str_replace(".", "\\", $appClass);
 		if (!class_exists($appClass, true)) {
 			self::$logger->error("应用程序类不存在", $appClass);
 			return;

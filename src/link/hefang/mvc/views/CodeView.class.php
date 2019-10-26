@@ -25,24 +25,30 @@ class CodeView extends BaseView
 		208 => "Multi-Status",
 		226 => "IM Used",
 		401 => "Unauthorized",
+		400 => "Bad Request",
 		403 => "Forbidden",
 		404 => "Not Found",
 		405 => "Method Not Allowed",
 		423 => "Locked",
-		500 => "Internal Server Error"
+		451 => "Unavailable For Legal Reasons",
+		500 => "Internal Server Error",
+		501 => "Not Implemented",
+		502 => "Bad Gateway",
+		504 => "Gateway Timeout"
 	];
 
 	public function __construct(CodeResult $result)
 	{
 		$this->code = $result->getCode();
-		$this->message = $result->getMessage() || $this->message;
-		$this->result = $result->getResult() || $this->result;
+		$this->message = $result->getMessage() ? $result->getMessage() : $this->message;
+		$this->result = $result->getResult() ? $result->getResult() : $this->result;
+		$this->contentType = "application/json";
 	}
 
 	public function compile(): BaseView
 	{
 		$this->isCompiled = true;
-
+		$this->result = json_encode($this->result, JSON_UNESCAPED_UNICODE);
 		return $this;
 	}
 
