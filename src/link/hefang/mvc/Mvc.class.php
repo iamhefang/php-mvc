@@ -65,7 +65,7 @@ class Mvc
 	private static $defaultController = "home";
 	private static $defaultAction = "index";
 	private static $defaultCharset = "UTF-8";
-	private static $defaultPageSize = 20;
+	private static $defaultPageSize = 10;
 	private static $defaultTheme = "default";
 	private static $defaultLocale = "zh_CN";
 
@@ -77,6 +77,7 @@ class Mvc
 	 * @var BaseDb
 	 */
 	private static $database;
+	private static $tablePrefix = "";
 
 	private static $controllers = [];
 	private static $actions = [];
@@ -480,6 +481,7 @@ class Mvc
 		$dbDatabase = self::getProperty("database.database");
 		$dbPort = intval(self::getProperty("database.port", '-1'));
 		$dbCharset = self::getProperty("database.charset");
+		self::$tablePrefix = self::getProperty("database.table.prefix", self::$tablePrefix);
 
 //        self::$logger->notice("读取数据库配置", join("", ["",
 //            "\0 - 类名: ", $dbClassName,
@@ -591,6 +593,15 @@ CONTROLLERS;
 				self::$actions[strtolower("$controllerKey/$method->name")] = $method->name;
 			}
 		}
+	}
+
+	/**
+	 * 获取表前缀
+	 * @return string
+	 */
+	public static function getTablePrefix()
+	{
+		return self::$tablePrefix;
 	}
 
 	private static function printSystemInfo()

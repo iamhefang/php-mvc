@@ -5,6 +5,7 @@ defined('PHP_MVC') or die("Access Refused");
 
 use link\hefang\mvc\entities\Router;
 use link\hefang\mvc\interfaces\IApplication;
+use link\hefang\mvc\models\BaseLoginModel;
 use link\hefang\mvc\views\BaseView;
 use Throwable;
 
@@ -38,5 +39,18 @@ class SimpleApplication implements IApplication
 	function onException(Throwable $e)
 	{
 		return null;
+	}
+
+	/**
+	 * 根据token获取当前系统登录用户
+	 * @param string $token
+	 * @return BaseLoginModel|null|false
+	 * 成功获取到用户返回用户信息
+	 * 没有获取到返回null
+	 * 不实现该方法由框架处理返回false
+	 */
+	function getLoginByToken(string $token)
+	{
+		return false;
 	}
 }

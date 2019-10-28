@@ -422,30 +422,43 @@ abstract class BaseModel implements IJsonObject, IMapObject, IModel, JsonSeriali
 	}
 
 	/**
-	 * 表名, 不重写该方法默认使用当前类的模型
+	 * 表名, 不重写该方法默认使用表前缀加当前模型类名做为表名
+	 * 若重写该方法, 则调用时不会自动添加表前缀
 	 * 比如:
-	 * UserModel: user
-	 * ArticleCategoryModel: article_category
-	 * ViewArticleTagModel: view_article_tag
+	 * UserModel: {$tablePrefix}user
+	 * ArticleCategoryModel: {$tablePrefix}article_category
+	 * ViewArticleTagModel: {$tablePrefix}view_article_tag
 	 * @return string
 	 */
 	public static function table(): string
 	{
 		$name = CollectionHelper::last(explode('\\', get_called_class()), '');
 		$name = str_replace('Model', '', $name);
-		return StringHelper::hump2underLine($name);
+		return Mvc::getTablePrefix() . StringHelper::hump2underLine($name);
 	}
 
+	/**
+	 * 大数据字段名, 大数据字段在列表查找时将不在结果中显示值
+	 * @return array
+	 */
 	public static function bigDataFields(): array
 	{
 		return [];
 	}
 
+	/**
+	 * 返回可被搜索的字段名
+	 * @return array
+	 */
 	public static function searchableFields(): array
 	{
 		return [];
 	}
 
+	/**
+	 * 返回需要对值执行trim的字段名
+	 * @return array
+	 */
 	public static function needTrimFields(): array
 	{
 		return [];
