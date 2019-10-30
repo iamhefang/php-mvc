@@ -17,12 +17,12 @@ use link\hefang\mvc\views\CodeView;
  */
 trait RestApiControllerTrait
 {
-	public function __construct()
-	{
-		if (!is_subclass_of($this, BaseController::class)) {
-			throw new TraitException("无法在类\"" . __CLASS__ . "\"中使用\"" . RestApiControllerTrait::class . "\"");
-		}
-	}
+//	public function __construct()
+//	{
+//		if (!is_subclass_of($this, BaseController::class)) {
+//			throw new TraitException("无法在类\"" . __CLASS__ . "\"中使用\"" . RestApiControllerTrait::class . "\"");
+//		}
+//	}
 
 	/**
 	 * 返回rest风格接口数据

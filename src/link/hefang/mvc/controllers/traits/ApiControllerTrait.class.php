@@ -16,12 +16,12 @@ use Throwable;
 
 trait ApiControllerTrait
 {
-	public function __construct()
-	{
-		if (!is_subclass_of($this, BaseController::class)) {
-			throw new TraitException("无法在类\"" . __CLASS__ . "\"中使用\"" . self::class . "\"");
-		}
-	}
+//	public function __construct()
+//	{
+//		if (!is_subclass_of($this, BaseController::class)) {
+//			throw new TraitException("无法在类\"" . __CLASS__ . "\"中使用\"" . self::class . "\"");
+//		}
+//	}
 
 
 	public function _api(ApiResult $result): BaseView
