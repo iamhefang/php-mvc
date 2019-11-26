@@ -732,7 +732,6 @@ INFO
 				$requestField->setAccessible(true);
 				$requestField->setValue($controller, is_array($post) ? array_merge($_REQUEST, $post) : $_REQUEST);
 			}
-
 		} catch (Throwable $e) {
 		}
 

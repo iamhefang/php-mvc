@@ -98,6 +98,16 @@ trait RestApiControllerTrait
 	}
 
 	/**
+	 * 405 请求访求不允许
+	 * @param string $data message
+	 * @return CodeView
+	 */
+	public function _methodNotAllowed($data = "请求方法不正确"): CodeView
+	{
+		return $this->_restApi($data, 405);
+	}
+
+	/**
 	 * 423 当前用户已被锁定, 或当前访问的资源已被锁定
 	 * @param string $data
 	 * @return CodeView

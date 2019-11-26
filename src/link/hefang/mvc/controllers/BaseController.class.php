@@ -12,18 +12,14 @@ use link\hefang\mvc\controllers\traits\RestApiControllerTrait;
 use link\hefang\mvc\databases\SqlSort;
 use link\hefang\mvc\entities\Router;
 use link\hefang\mvc\interfaces\IController;
-use link\hefang\mvc\interfaces\IDULG;
 use link\hefang\mvc\models\BaseLoginModel;
 use link\hefang\mvc\Mvc;
-use link\hefang\mvc\views\BaseView;
-use link\hefang\mvc\views\CodeView;
-use link\hefang\mvc\views\ErrorView;
 
 /**
  * 控制器基类，所有的控制器都要直接或间接继承该类
  * @package link\hefang\mvc\controllers
  */
-abstract class BaseController implements IController, IDULG
+abstract class BaseController implements IController
 {
 	use NotApiControllerTrait;
 	use ApiControllerTrait;
@@ -166,6 +162,15 @@ abstract class BaseController implements IController, IDULG
 	}
 
 	/**
+	 * 获取当前请求的方法
+	 * @return string
+	 */
+	public function _method(): string
+	{
+		return strtoupper($this->_header("method"));
+	}
+
+	/**
 	 * 获取当前登录用户
 	 * @return BaseLoginModel|null
 	 */
@@ -260,30 +265,5 @@ abstract class BaseController implements IController, IDULG
 	public function _userAgent(): string
 	{
 		return $this->_header("User-Agent");
-	}
-
-	public function insert(): BaseView
-	{
-		return new ErrorView(404, CodeView::HTTP_STATUS_CODE[404]);
-	}
-
-	public function delete(): BaseView
-	{
-		return new ErrorView(404, CodeView::HTTP_STATUS_CODE[404]);
-	}
-
-	public function update(): BaseView
-	{
-		return new ErrorView(404, CodeView::HTTP_STATUS_CODE[404]);
-	}
-
-	public function list(): BaseView
-	{
-		return new ErrorView(404, CodeView::HTTP_STATUS_CODE[404]);
-	}
-
-	public function get(string $id = null): BaseView
-	{
-		return new ErrorView(404, CodeView::HTTP_STATUS_CODE[404]);
 	}
 }

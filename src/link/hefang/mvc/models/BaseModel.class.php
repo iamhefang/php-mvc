@@ -394,25 +394,27 @@ abstract class BaseModel implements IJsonObject, IMapObject, IModel, JsonSeriali
 	}
 
 	/**
-	 * @param string $field
-	 * @param $value
+	 * 设置值到数据库对应字段
+	 * @param string $field 数据表里的字段名
+	 * @param mixed $value 值
 	 * @return $this
 	 * @throws ReflectionException
 	 */
-	public function setValueFromField(string $field, $value)
+	public function setValueToField(string $field, $value)
 	{
 		$fields = self::_fields();
-		$this->setValueFromProperty($fields[$field], $value);
+		$this->setValueToProperty($fields[$field], $value);
 		return $this;
 	}
 
 	/**
-	 * @param string $property
-	 * @param $value
+	 * 设置值到模型属性名
+	 * @param string $property 模型对象对应的属性名
+	 * @param mixed $value 值
 	 * @return $this
 	 * @throws ReflectionException
 	 */
-	public function setValueFromProperty(string $property, $value)
+	public function setValueToProperty(string $property, $value)
 	{
 		$class = get_called_class();
 		$property = ObjectHelper::getProperty($class, $property);
@@ -464,6 +466,10 @@ abstract class BaseModel implements IJsonObject, IMapObject, IModel, JsonSeriali
 		return [];
 	}
 
+	/**
+	 * 当前模型是否为只读模型
+	 * @return bool
+	 */
 	public static function readOnly(): bool
 	{
 		return false;
