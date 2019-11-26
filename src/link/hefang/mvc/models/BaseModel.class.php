@@ -120,8 +120,8 @@ abstract class BaseModel implements IJsonObject, IMapObject, IModel, JsonSeriali
 		);
 		return new Pager(
 			$pager->getTotal(),
-			$pager->getPageIndex(),
-			$pager->getPageSize(),
+			$pager->getCurrent(),
+			$pager->getSize(),
 			array_map('self::row2model', $pager->getData())
 		);
 	}

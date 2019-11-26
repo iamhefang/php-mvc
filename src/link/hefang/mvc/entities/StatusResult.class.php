@@ -7,16 +7,15 @@ namespace link\hefang\mvc\entities;
 use JsonSerializable;
 use link\hefang\interfaces\IJsonObject;
 use link\hefang\interfaces\IMapObject;
-use link\hefang\mvc\databases\Mysql;
-use link\hefang\mvc\Mvc;
+use link\hefang\mvc\helpers\DebugHelper;
 
 /**
  * 状态码视图
  * @package link\hefang\mvc\entities
  */
-class CodeResult implements IJsonObject, IMapObject, JsonSerializable
+class StatusResult implements IJsonObject, IMapObject, JsonSerializable
 {
-	private $code = 200;
+	private $status = 200;
 	private $message = '';
 	private $result;
 
@@ -28,26 +27,27 @@ class CodeResult implements IJsonObject, IMapObject, JsonSerializable
 	 */
 	public function __construct(int $code, string $message, $result)
 	{
-		$this->code = $code;
+		$this->status = $code;
 		$this->message = $message;
 		$this->result = $result;
 	}
 
 
 	/**
-	 * @return int
+	 * 获取状态码
+	 * @return int 状态码
 	 */
-	public function getCode(): int
+	public function getStatus(): int
 	{
-		return $this->code;
+		return $this->status;
 	}
 
 	/**
-	 * @param int $code
+	 * @param int $status
 	 */
-	public function setCode(int $code)
+	public function setStatus(int $status)
 	{
-		$this->code = $code;
+		$this->status = $status;
 	}
 
 	/**
@@ -90,28 +90,14 @@ class CodeResult implements IJsonObject, IMapObject, JsonSerializable
 	public function toMap(): array
 	{
 		$map = [
-			'code' => $this->code,
+			'code' => $this->status,
 			'message' => $this->message,
 			'result' => $this->result
 		];
-		if (Mvc::isDebug()) {
-			$map['debug'] = [
-				'classes' => count(get_declared_classes()),
-				'files' => count(get_included_files()),
-				'sqls' => count(Mysql::getExecutedSqls()),
-				'time' => round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) * 1000, 3)
-			];
-		}
+		DebugHelper::apiDebugField($map);
 		return $map;
 	}
 
-	/**
-	 * Specify data which should be serialized to JSON
-	 * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
-	 * @return mixed data which can be serialized by <b>json_encode</b>,
-	 * which is a value of any type other than a resource.
-	 * @since 5.4.0
-	 */
 	public function jsonSerialize()
 	{
 		return $this->toMap();

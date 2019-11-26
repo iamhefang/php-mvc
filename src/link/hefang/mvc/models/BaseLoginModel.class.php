@@ -4,6 +4,7 @@ namespace link\hefang\mvc\models;
 
 
 use link\hefang\helpers\ObjectHelper;
+use link\hefang\helpers\RandomHelper;
 use link\hefang\helpers\TimeHelper;
 use link\hefang\mvc\controllers\BaseController;
 use link\hefang\mvc\Mvc;
@@ -26,7 +27,7 @@ abstract class BaseLoginModel extends BaseModel
 	/**
 	 * @var string|null
 	 */
-	protected $tokenSessionId = '';
+	protected $token = '';
 
 	private $lastActiveTime = 0;
 
@@ -109,11 +110,20 @@ abstract class BaseLoginModel extends BaseModel
 	/**
 	 * @return null|string
 	 */
-	public function getTokenSessionId(): string
+	public function getToken(): string
 	{
-		return $this->tokenSessionId;
+		return $this->token;
 	}
 
+	/**
+	 * @param string|null $token
+	 * @return $this
+	 */
+	public function setToken(string $token = null)
+	{
+		$this->token = $token ?: RandomHelper::guid();
+		return $this;
+	}
 
 	abstract public function isAdmin(): bool;
 
@@ -161,7 +171,15 @@ abstract class BaseLoginModel extends BaseModel
 	public function updateSession(BaseController $controller)
 	{
 		ObjectHelper::checkNull($controller);
-		$controller->_setSession(self::LOGIN_SESSION_KEY, $this);
+		if (Mvc::getAuthType() === "TOKEN") {
+			Mvc::getCache()->set($this->getToken(), $this);
+		} else {
+			$controller->_setSession(self::LOGIN_SESSION_KEY, $this);
+		}
+		if (Mvc::getAuthType() === "BOTH") {
+			Mvc::getCache()->set($this->getToken(), $this);
+			$controller->_setSession(self::LOGIN_SESSION_KEY, $this);
+		}
 	}
 
 	public function logout(BaseController $controller)
@@ -182,6 +200,9 @@ abstract class BaseLoginModel extends BaseModel
 		$map['loginUserAgent'] = $this->getLoginUserAgent();
 		$map['roleId'] = $this->getRoleId();
 		$map['isLockedScreen'] = $this->isLockedScreen();
+		if (Mvc::getAuthType() === "BOTH" || Mvc::getAuthType() === "TOKEN") {
+			$map['token'] = $this->getToken();
+		}
 		unset($map['password']);
 		return $map;
 	}

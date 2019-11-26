@@ -5,11 +5,11 @@ namespace link\hefang\mvc\controllers\traits;
 
 
 use link\hefang\helpers\CollectionHelper;
-use link\hefang\mvc\controllers\BaseController;
-use link\hefang\mvc\entities\CodeResult;
-use link\hefang\mvc\exceptions\TraitException;
+use link\hefang\mvc\entities\StatusResult;
+use link\hefang\mvc\Mvc;
 use link\hefang\mvc\views\BaseView;
 use link\hefang\mvc\views\CodeView;
+use Throwable;
 
 /**
  * Trait RestApiControllerTrait
@@ -34,7 +34,7 @@ trait RestApiControllerTrait
 	public function _restApi($data, int $code, string $message = null): CodeView
 	{
 		$message = $message ?: CollectionHelper::getOrDefault(CodeView::HTTP_STATUS_CODE, $code, $message || "");
-		return new CodeView(new CodeResult($code, $message, $data));
+		return new CodeView(new StatusResult($code, $message, $data));
 	}
 
 	/**
@@ -109,11 +109,13 @@ trait RestApiControllerTrait
 
 	/**
 	 * 500 服务端出现异常
+	 * @param Throwable $exception
 	 * @param string $data
 	 * @return CodeView
 	 */
-	public function _restApiServerError($data = "服务端错误"): CodeView
+	public function _restApiServerError(Throwable $exception, $data = "服务端错误"): CodeView
 	{
+		Mvc::getLogger()->error(null, $data, $exception);
 		return $this->_restApi($data, 500);
 	}
 

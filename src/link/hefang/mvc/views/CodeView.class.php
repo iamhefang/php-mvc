@@ -4,7 +4,7 @@
 namespace link\hefang\mvc\views;
 
 
-use link\hefang\mvc\entities\CodeResult;
+use link\hefang\mvc\entities\StatusResult;
 
 class CodeView extends BaseView
 {
@@ -41,11 +41,11 @@ class CodeView extends BaseView
 		504 => "Gateway Timeout"
 	];
 
-	public function __construct(CodeResult $result)
+	public function __construct(StatusResult $result)
 	{
-		$this->code = $result->getCode();
+		$this->code = $result->getStatus();
 		$this->message = $result->getMessage() ? $result->getMessage() : $this->message;
-		$this->result = $result->getResult() ? $result->getResult() : $this->result;
+		$this->result = $result;
 		$this->contentType = "application/json";
 	}
 

@@ -6,8 +6,7 @@ namespace link\hefang\mvc\entities;
 use JsonSerializable;
 use link\hefang\interfaces\IJsonObject;
 use link\hefang\interfaces\IMapObject;
-use link\hefang\mvc\databases\Mysql;
-use link\hefang\mvc\Mvc;
+use link\hefang\mvc\helpers\DebugHelper;
 
 class ApiResult implements IJsonObject, IMapObject, JsonSerializable
 {
@@ -251,14 +250,7 @@ class ApiResult implements IJsonObject, IMapObject, JsonSerializable
 		if ($this->needDeveloper) {
 			$map["needDeveloper"] = true;
 		}
-		if (Mvc::isDebug()) {
-			$map['debug'] = [
-				'classes' => count(get_declared_classes()),
-				'files' => count(get_included_files()),
-				'sqls' => count(Mysql::getExecutedSqls()),
-				'time' => round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) * 1000, 3)
-			];
-		}
+		DebugHelper::apiDebugField($map);
 		return $map;
 	}
 

@@ -10,8 +10,8 @@ use link\hefang\interfaces\IMapObject;
 class Pager implements IJsonObject, IMapObject, JsonSerializable
 {
 	private $total = 0;
-	private $pageIndex = 1;
-	private $pageSize = 20;
+	private $current = 1;
+	private $size = 20;
 	private $data = [];
 
 	/**
@@ -24,8 +24,8 @@ class Pager implements IJsonObject, IMapObject, JsonSerializable
 	public function __construct(int $total, int $pageIndex, int $pageSize, array $data)
 	{
 		$this->total = $total;
-		$this->pageIndex = $pageIndex;
-		$this->pageSize = $pageSize;
+		$this->current = $pageIndex;
+		$this->size = $pageSize;
 		$this->data = $data;
 	}
 
@@ -40,17 +40,17 @@ class Pager implements IJsonObject, IMapObject, JsonSerializable
 	/**
 	 * @return int
 	 */
-	public function getPageIndex(): int
+	public function getCurrent(): int
 	{
-		return $this->pageIndex;
+		return $this->current;
 	}
 
 	/**
 	 * @return int
 	 */
-	public function getPageSize(): int
+	public function getSize(): int
 	{
-		return $this->pageSize;
+		return $this->size;
 	}
 
 	/**
@@ -69,8 +69,8 @@ class Pager implements IJsonObject, IMapObject, JsonSerializable
 	public function toMap(): array
 	{
 		return [
-			"pageIndex" => $this->pageIndex,
-			"pageSize" => $this->pageSize,
+			"current" => $this->current,
+			"size" => $this->size,
 			"total" => $this->total,
 			"data" => $this->data
 		];
