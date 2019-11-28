@@ -18,6 +18,8 @@ return [
 	'project.custom.header' => [
 		'Powered-By' => "php-mvc " . PHP_MVC
 	],
+	//路由
+	'project.router' => "auto",
 	'database.enable' => false,
 	'database.class' => 'link.hefang.mvc.databases.Mysql',
 	'database.host' => 'localhost',
@@ -38,4 +40,6 @@ return [
 	'default.pagination.size' => 10,
 	'prefix.url.main' => '/index.php',
 	'prefix.url.file' => '/files',
+	'logger.class' => "",
+	'logger.level' => "WARN"
 ];

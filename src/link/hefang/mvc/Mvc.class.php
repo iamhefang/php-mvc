@@ -102,8 +102,8 @@ class Mvc
 	/**
 	 * 读取配置文件中的配置项
 	 * @param string $key
-	 * @param string|null $defaultValue
-	 * @return null|string
+	 * @param null|string|array|bool|int|float $defaultValue
+	 * @return null|string|array|bool|int|float
 	 */
 	public static function getProperty(string $key, string $defaultValue = null)
 	{
@@ -112,7 +112,7 @@ class Mvc
 	}
 
 	/**
-	 * 读取全局配置项
+	 * 读取全局配置项, Application::init()返回的配置项和Mvc::addConfig添加的配置项
 	 * @param string $key
 	 * @param mixed|null $defaultValue
 	 * @return mixed|null
@@ -122,11 +122,20 @@ class Mvc
 		return CollectionHelper::getOrDefault(self::$globalConfig, $key, $defaultValue);
 	}
 
+	/**
+	 * 整体替换配置项
+	 * @param array $config
+	 */
 	public static function putConfig(array $config)
 	{
 		self::$globalConfig = $config;
 	}
 
+	/**
+	 * 添加一个配置项， 可使用Mvc::getConfig()读取到
+	 * @param string $name
+	 * @param $value
+	 */
 	public static function addConfig(string $name, $value)
 	{
 		self::$globalConfig[$name] = $value;
@@ -153,6 +162,7 @@ class Mvc
 	}
 
 	/**
+	 * 读取全部配置项
 	 * @return Properties
 	 */
 	public static function getProperties(): Properties

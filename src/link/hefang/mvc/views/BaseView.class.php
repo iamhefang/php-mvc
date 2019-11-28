@@ -60,7 +60,10 @@ abstract class BaseView
 
 		//设置响应头
 		header("Content-Type: $this->contentType; charset=$this->charset", true);
-
+		$customHeaders = Mvc::getProperty("project.custom.header", []);
+		foreach ($customHeaders as $name => $value) {
+			header($name, $value);
+		}
 		//输出视图
 		echo $this->result;
 
