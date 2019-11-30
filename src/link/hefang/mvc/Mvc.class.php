@@ -105,7 +105,7 @@ class Mvc
 	 * @param null|string|array|bool|int|float $defaultValue
 	 * @return null|string|array|bool|int|float
 	 */
-	public static function getProperty(string $key, string $defaultValue = null)
+	public static function getProperty(string $key, $defaultValue = null)
 	{
 //        return self::$properties->getProperty($key, $defaultValue);
 		return CollectionHelper::getOrDefault(self::$settings, $key, $defaultValue);
@@ -441,11 +441,12 @@ class Mvc
 		self::$defaultCharset = self::getProperty("default.charset", self::$defaultCharset);
 		self::$defaultTheme = self::getProperty("default.theme", self::$defaultTheme);
 		self::$defaultLocale = self::getProperty("default.locale", self::$defaultLocale);
-
+		$router = self::getProperty("project.router", "auto");
 		if (StringHelper::isNullOrBlank(self::$projectPackage)) {
 			self::$logger->error("项目主包未设置", "项目将无法运行");
 			exit("项目主包未设置");
 		}
+
 
 		self::$projectPackage = str_replace(".", "\\", self::$projectPackage);
 
@@ -456,16 +457,12 @@ class Mvc
 		if (!in_array(self::$authType, ['TOKEN', 'SESSION', 'BOTH'])) {
 			self::$authType = 'SESSION';
 		}
-
-//        self::$logger->notice("读取项目默认值", join("", [
-//            " - 默认模块: ", self::$defaultModule
-//            , "\n - 默认控制器: ", self::$defaultController
-//            , "\n - 默认动作: ", self::$defaultAction
-//            , "\n - 默认页大小: ", self::$defaultPageSize
-//            , "\n - 默认编码: ", self::$defaultCharset
-//            , "\n - 默认语言: ", self::$defaultLocale
-//            , "\n - 默认主题: ", self::$defaultTheme
-//        ]));
+		if (is_string($router) && strcasecmp($router, "auto") === 0) {
+			$router = "auto";
+		}
+		if (is_array($router)) {
+			//todo: 路由解析未完成
+		}
 		session_name("PHP_MVC_SESSION_ID");
 	}
 

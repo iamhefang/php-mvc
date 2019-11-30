@@ -29,7 +29,7 @@ class DebugHelper
 				// 服务器操作系统
 				'serverOS' => PHP_OS,
 				// 本次请求持续时间
-				'duration' => round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) * 1000, 3)
+				'duration' => round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) * 1000)
 			];
 		}
 	}
