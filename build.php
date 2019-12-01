@@ -11,8 +11,8 @@ $composerJson = json_decode(file_get_contents("./composer.json"), true);
 //$version = "SNAPSHOT";
 $version = $composerJson["version"];
 
-$fnname = __DIR__ . "/build/$name-$version.phar";
-//$fnname = "/mnt/CommonData/DevDir/juewei-cms/libraries/php-mvc-SNAPSHOT.phar";
+//$fnname = __DIR__ . "/build/$name-$version.phar";
+$fnname = "C:\Users\hefang\DevDir\hefang-cms\hefang-cms-php\src\libraries\php-mvc-1.1.1.phar";
 
 if (!file_exists(__DIR__ . "/build/")) {
 	mkdir(__DIR__ . "/build/", 0777, true);

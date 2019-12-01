@@ -20,7 +20,7 @@ class ErrorView extends BaseView
 	public function __construct(int $code, string $message = null)
 	{
 		$this->code = $code;
-		$this->result = ObjectHelper::nullOrDefault($message, CollectionHelper::getOrDefault(CodeView::HTTP_STATUS_CODE, $code, $code));
+		$this->result = ObjectHelper::nullOrDefault($message, CollectionHelper::getOrDefault(StatusView::HTTP_STATUS_CODE, $code, $code));
 	}
 
 	public function compile(): BaseView

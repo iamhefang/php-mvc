@@ -6,9 +6,9 @@ namespace link\hefang\mvc\views;
 
 use link\hefang\mvc\entities\StatusResult;
 
-class CodeView extends BaseView
+class StatusView extends BaseView
 {
-	private $code = 200;
+	private $status = 200;
 	private $message = '';
 	const HTTP_STATUS_CODE = [
 		100 => "Continue",
@@ -24,8 +24,9 @@ class CodeView extends BaseView
 		207 => "Multi-Status",
 		208 => "Multi-Status",
 		226 => "IM Used",
-		401 => "Unauthorized",
+		304 => "Not Modified",
 		400 => "Bad Request",
+		401 => "Unauthorized",
 		402 => "Payment Required",
 		403 => "Forbidden",
 		404 => "Not Found",
@@ -35,6 +36,7 @@ class CodeView extends BaseView
 		415 => "Unsupported Media Type",
 		423 => "Locked",
 		451 => "Unavailable For Legal Reasons",
+		499 => "Not Success Of Unknown Reason",
 		500 => "Internal Server Error",
 		501 => "Not Implemented",
 		502 => "Bad Gateway",
@@ -43,7 +45,7 @@ class CodeView extends BaseView
 
 	public function __construct(StatusResult $result)
 	{
-		$this->code = $result->getStatus();
+		$this->status = $result->getStatus();
 		$this->message = $result->getMessage() ? $result->getMessage() : $this->message;
 		$this->result = $result;
 		$this->contentType = "application/json";
@@ -60,7 +62,7 @@ class CodeView extends BaseView
 	{
 		$this->checkCompile();
 
-		header("HTTP/1.1 $this->code $this->message");
+		header("HTTP/1.1 $this->status $this->message");
 
 		parent::render();
 	}

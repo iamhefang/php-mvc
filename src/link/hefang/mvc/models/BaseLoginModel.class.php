@@ -5,6 +5,7 @@ namespace link\hefang\mvc\models;
 
 use link\hefang\helpers\ObjectHelper;
 use link\hefang\helpers\RandomHelper;
+use link\hefang\helpers\StringHelper;
 use link\hefang\helpers\TimeHelper;
 use link\hefang\mvc\controllers\BaseController;
 use link\hefang\mvc\Mvc;
@@ -161,6 +162,9 @@ abstract class BaseLoginModel extends BaseModel
 	{
 		ObjectHelper::checkNull($controller);
 		$this->lastActiveTime = TimeHelper::currentTimeMillis();
+		if (StringHelper::isNullOrBlank($this->getToken())) {
+			$this->setToken(RandomHelper::guid());
+		}
 		$this->setLoginTime(TimeHelper::currentTimeMillis())
 			->setLoginIp($controller->_ip())
 			->setLoginUserAgent($controller->_header("User-Agent"))
@@ -186,6 +190,7 @@ abstract class BaseLoginModel extends BaseModel
 	{
 		ObjectHelper::checkNull($controller);
 		$controller->_setSession(self::LOGIN_SESSION_KEY, null);
+		Mvc::getCache()->remove($this->getToken());
 	}
 
 	public function toMap(): array

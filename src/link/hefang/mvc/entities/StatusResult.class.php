@@ -21,13 +21,13 @@ class StatusResult implements IJsonObject, IMapObject, JsonSerializable
 
 	/**
 	 * CodeResult constructor.
-	 * @param int $code 状态码
+	 * @param int $status 状态码
 	 * @param string $message 消息
 	 * @param string|array|null $result 响应内容
 	 */
-	public function __construct(int $code, string $message, $result)
+	public function __construct(int $status, string $message, $result)
 	{
-		$this->status = $code;
+		$this->status = $status;
 		$this->message = $message;
 		$this->result = $result;
 	}
@@ -90,7 +90,7 @@ class StatusResult implements IJsonObject, IMapObject, JsonSerializable
 	public function toMap(): array
 	{
 		$map = [
-			'code' => $this->status,
+			'status' => $this->status,
 			'message' => $this->message,
 			'result' => $this->result
 		];
