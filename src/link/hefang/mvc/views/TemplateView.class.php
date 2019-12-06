@@ -7,7 +7,9 @@ defined('PHP_MVC') or die("Access Refused");
 use link\hefang\helpers\CollectionHelper;
 use link\hefang\mvc\exceptions\ViewNotCompiledException;
 use link\hefang\mvc\exceptions\ViewNotFoundException;
+use link\hefang\mvc\helpers\DebugHelper;
 use link\hefang\mvc\Mvc;
+use Symfony\Component\Debug\Debug;
 
 /**
  * 模板视图
@@ -253,6 +255,8 @@ class TemplateView extends BaseView
 	public function render()
 	{
 		$this->checkCompile();
+
+		Mvc::isDebug() and DebugHelper::apiDebugField($this->data);
 
 		extract($this->data);
 
