@@ -6,6 +6,8 @@ namespace link\hefang\mvc\controllers\traits;
 
 use link\hefang\helpers\CollectionHelper;
 use link\hefang\mvc\entities\StatusResult;
+use link\hefang\mvc\exceptions\ModelException;
+use link\hefang\mvc\exceptions\SqlException;
 use link\hefang\mvc\Mvc;
 use link\hefang\mvc\views\StatusView;
 use Throwable;
@@ -139,13 +141,22 @@ trait RestApiControllerTrait
 	/**
 	 * 500 服务端出现异常
 	 * @param Throwable $exception
-	 * @param string $data
+	 * @param string $message
 	 * @return StatusView
 	 */
-	public function _restApiServerError(Throwable $exception, $data = "服务端错误"): StatusView
+	public function _restApiServerError(Throwable $exception, string $message = null): StatusView
 	{
-		Mvc::getLogger()->error(null, $data, $exception);
-		return $this->_restApi($data, 500);
+		if ($message === null) {
+			if ($exception instanceof SqlException) {
+				$message = "读取数据时出现异常";
+			} else if ($exception instanceof ModelException) {
+				$message = "解析数据时出现异常";
+			} else {
+				$message = "服务端错误";
+			}
+		}
+		Mvc::getLogger()->error(null, $message, $exception);
+		return $this->_restApi($message, 500);
 	}
 
 }
