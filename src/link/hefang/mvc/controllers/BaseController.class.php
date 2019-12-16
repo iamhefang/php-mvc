@@ -178,7 +178,7 @@ abstract class BaseController implements IController
 	{
 		$authType = Mvc::getAuthType();
 		if ($authType === "TOKEN" || $authType === "BOTH") {
-			$token = $this->_header("HeFang-CMS-Token");
+			$token = $this->_header("Authorization");
 			if (StringHelper::isNullOrBlank($token)) {
 				return null;
 			}
