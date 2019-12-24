@@ -555,6 +555,7 @@ class Mvc
 			try {
 				$reflection = new ReflectionClass($class);
 				if (!$reflection->isSubclassOf(BaseController::class)) continue;
+				$doc = $reflection->getDocComment();
 
 				if (!$class::isController()) continue;
 				$module = $class::module();
