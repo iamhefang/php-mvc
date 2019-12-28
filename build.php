@@ -43,3 +43,5 @@ $phar->setStub($stub);
 
 $phar->compressFiles(Phar::GZ);
 
+
+echo "已生成文件：" . $fnname;
