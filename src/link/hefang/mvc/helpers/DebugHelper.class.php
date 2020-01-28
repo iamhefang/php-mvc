@@ -25,6 +25,7 @@ class DebugHelper
 				'loadedPlugins' => [],
 				// 服务器信息
 				'serverHost' => $_SERVER["HTTP_HOST"],
+				//服务器名称
 				'serverName' => $_SERVER["SERVER_NAME"],
 				// 服务器操作系统
 				'serverOS' => PHP_OS,

@@ -17,6 +17,7 @@ use link\hefang\interfaces\ILogger;
 use link\hefang\mvc\caches\SimpleCache;
 use link\hefang\mvc\controllers\BaseController;
 use link\hefang\mvc\databases\BaseDb;
+use link\hefang\mvc\entities\ActionDocComment;
 use link\hefang\mvc\entities\Router;
 use link\hefang\mvc\exceptions\ActionNotFoundException;
 use link\hefang\mvc\exceptions\ControllerNotFoundException;
@@ -36,7 +37,7 @@ class Mvc
 
 	private static $pathInfoType = "PATH_INFO";
 
-	private static $rawPostData = null;
+	private static $postRawJSON = null;
 
 	private static $globalConfig = [];
 
@@ -330,9 +331,9 @@ class Mvc
 	/**
 	 * @return null
 	 */
-	public static function getRawPostData()
+	public static function getPostRawJSON()
 	{
-		return self::$rawPostData;
+		return self::$postRawJSON;
 	}
 
 	public static function init(string $propertiesPath = null)
@@ -447,7 +448,6 @@ class Mvc
 			exit("项目主包未设置");
 		}
 
-
 		self::$projectPackage = str_replace(".", "\\", self::$projectPackage);
 
 		if (!in_array(self::$pathInfoType, ["PATH_INFO", "QUERY_STRING"])) {
@@ -480,8 +480,6 @@ class Mvc
 			self::$logger->error("数据库类不存在, 数据库功能已禁用", $dbClassName);
 			return;
 		}
-
-
 		$dbHost = self::getProperty("database.host");
 		$dbUsername = self::getProperty("database.username");
 		$dbPassword = self::getProperty("database.password");
@@ -489,8 +487,7 @@ class Mvc
 		$dbPort = intval(self::getProperty("database.port", '-1'));
 		$dbCharset = self::getProperty("database.charset");
 		self::$tablePrefix = self::getProperty("database.table.prefix", self::$tablePrefix);
-
-//        self::$logger->notice("读取数据库配置", join("", ["",
+		//        self::$logger->notice("读取数据库配置", join("", ["",
 //            "\0 - 类名: ", $dbClassName,
 //            "\n - 主机: ", $dbHost,
 //            "\n - 端口: ", $dbPort > 0 ? $dbPort : '默认',
@@ -555,13 +552,20 @@ class Mvc
 			try {
 				$reflection = new ReflectionClass($class);
 				if (!$reflection->isSubclassOf(BaseController::class)) continue;
-				$doc = $reflection->getDocComment();
-
 				if (!$class::isController()) continue;
 				$module = $class::module();
 				$controller = $class::name();
 				$ck = strtolower("$module/$controller");
-				self::$controllers[$ck] = $class;
+				$doc = ActionDocComment::parse($reflection->getDocComment());
+				self::$controllers[$ck] = [
+					"class" => $reflection->getName(),
+					"doc" => [
+						"needLogin" => $doc->isNeedLogin(),
+						"needAdmin" => $doc->isNeedAdmin(),
+						"needSuperAdmin" => $doc->isNeedSuperAdmin(),
+						"needUnlock" => $doc->isNeedUnlock()
+					]
+				];
 				self::initActions($reflection, $ck);
 			} catch (ReflectionException $e) {
 			}
@@ -591,14 +595,29 @@ CONTROLLERS;
 				|| $method->class === BaseController::class) continue;
 			$returnType = $method->getReturnType();
 			if (!$returnType) continue;
+
 			if (version_compare(PHP_VERSION, "7.1.0", ">=")) {
-				$name = $returnType->getName();
+				$returnTypeName = $returnType->getName();
 			} else {
-				$name = $returnType . '';
+				$returnTypeName = $returnType . '';
 			}
 
-			if ($name === BaseView::class) {
-				self::$actions[strtolower("$controllerKey/$method->name")] = $method->name;
+			if ($returnTypeName === BaseView::class) {
+				$doc = ActionDocComment::parse($method->getDocComment());
+				$actionName = $doc->getName();
+				if (StringHelper::isNullOrBlank($actionName)) {
+					$actionName = $method->getName();
+				}
+				self::$actions[strtolower("$controllerKey/$actionName")] = [
+					"class" => $controllerClass->getName(),
+					"method" => $method->getName(),
+					"doc" => [
+						"needLogin" => $doc->isNeedLogin(),
+						"needAdmin" => $doc->isNeedAdmin(),
+						"needSuperAdmin" => $doc->isNeedSuperAdmin(),
+						"needUnlock" => $doc->isNeedUnlock()
+					]
+				];
 			}
 		}
 	}
@@ -679,7 +698,7 @@ INFO
 			$path = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : (
 			isset($_SERVER["ORIG_PATH_INFO"]) ? $_SERVER["ORIG_PATH_INFO"] : (
 			isset($_SERVER['REDIRECT_PATH_INFO']) ? $_SERVER["REDIRECT_PATH_INFO"] : '/'));
-//            $path = CollectionHelper::getOrDefault($_SERVER, "PATH_INFO", "/");
+//       $path = CollectionHelper::getOrDefault($_SERVER, "PATH_INFO", "/");
 		}
 		$path = urldecode($path);
 		/**
@@ -719,31 +738,36 @@ INFO
 			throw new ActionNotFoundException($router);
 		}
 
-		$controllerClass = self::$controllers[$ck];
-		$actionMethod = self::$actions[$ak];
+		$ctrlInfo = self::$controllers[$ck];
+		$ctrlDoc = $ctrlInfo["doc"];
 
+		$actMtdInfo = self::$actions[$ak];
+		$actMtdDoc = $actMtdInfo["doc"];
 
-		$controller = self::_controller($controllerClass);
+		$controller = self::_controller($ctrlInfo["class"]);
 		$controller->setRouter($router);
 
-		try {
-			self::$rawPostData = @file_get_contents("php://input");
-			$post = @json_decode(self::$rawPostData, true);
-			$postField = ObjectHelper::getProperty($controllerClass, "___post");
-			$requestField = ObjectHelper::getProperty($controllerClass, "___request");
-			if ($postField) {
-				$postField->setAccessible(true);
-				$postField->setValue($controller, is_array($post) ? array_merge($post, $_POST) : $_POST);
-			}
+		$type = $controller->_header("Content-Type");
+		if (StringHelper::contains($type, true, "json")) {
+			try {
+				self::$postRawJSON = @file_get_contents("php://input");
+				$post = @json_decode(self::$postRawJSON, true);
+				$postField = ObjectHelper::getProperty($ctrlInfo, "___post");
+				$requestField = ObjectHelper::getProperty($ctrlInfo, "___request");
+				if ($postField) {
+					$postField->setAccessible(true);
+					$postField->setValue($controller, is_array($post) ? array_merge($post, $_POST) : $_POST);
+				}
 
-			if ($requestField) {
-				$requestField->setAccessible(true);
-				$requestField->setValue($controller, is_array($post) ? array_merge($_REQUEST, $post) : $_REQUEST);
+				if ($requestField) {
+					$requestField->setAccessible(true);
+					$requestField->setValue($controller, is_array($post) ? array_merge($_REQUEST, $post) : $_REQUEST);
+				}
+			} catch (Throwable $e) {
 			}
-		} catch (Throwable $e) {
 		}
 
-		$view = $controller->$actionMethod($router->getCmd());
+		$view = $controller->$actMtdInfo["name"]($router->getCmd());
 		return ($view instanceof BaseView) ? $view : null;
 	}
 

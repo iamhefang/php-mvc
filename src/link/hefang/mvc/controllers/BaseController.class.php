@@ -14,6 +14,7 @@ use link\hefang\mvc\entities\Router;
 use link\hefang\mvc\interfaces\IController;
 use link\hefang\mvc\models\BaseLoginModel;
 use link\hefang\mvc\Mvc;
+use RuntimeException;
 
 /**
  * 控制器基类，所有的控制器都要直接或间接继承该类
@@ -48,11 +49,16 @@ abstract class BaseController implements IController
 
 	/**
 	 * 返回控制器名称
+	 * 如果控制器实现类重写了该方法
 	 * @return string
 	 */
 	public static function name(): string
 	{
-		$class = explode("\\", get_called_class());
+		$class = get_called_class();
+		if ($class === BaseController::class) {
+			throw new RuntimeException("请不要直接使用BaseController::class");
+		}
+		$class = explode("\\", $class);
 		return str_replace("Controller", "", CollectionHelper::last($class, ""));
 	}
 
@@ -148,9 +154,10 @@ abstract class BaseController implements IController
 	}
 
 	/**
-	 * @param string $name
-	 * @param string|null $defaultValue
-	 * @return string|null
+	 * 获取指定请求头
+	 * @param string $name 要获取请求头的键
+	 * @param string|null $defaultValue 无对应值时返回默认值
+	 * @return string|null 返回值
 	 */
 	public function _header(string $name, string $defaultValue = null)
 	{

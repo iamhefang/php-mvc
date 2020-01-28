@@ -3,6 +3,7 @@
 namespace link\hefang\mvc;
 defined('PHP_MVC') or die("Access Refused");
 
+use link\hefang\mvc\controllers\BaseController;
 use link\hefang\mvc\entities\Router;
 use link\hefang\mvc\interfaces\IApplication;
 use link\hefang\mvc\models\BaseLoginModel;
@@ -52,5 +53,45 @@ class SimpleApplication implements IApplication
 	function getLoginByToken(string $token)
 	{
 		return false;
+	}
+
+	/**
+	 * 动作或控制器需要登录，但当前没有登录用户时返回的视图
+	 * @param BaseController $controller 当前控制器
+	 * @return BaseView|null
+	 */
+	function onNeedLogin(BaseController $controller)
+	{
+		return null;
+	}
+
+	/**
+	 * 动作或控制器需要解锁才能访问， 当前登录用户登录状态处于锁定状态
+	 * @param BaseController $controller 当前控制器
+	 * @return BaseView|null
+	 */
+	function onNeedUnlock(BaseController $controller)
+	{
+		return null;
+	}
+
+	/**
+	 * 动作或控制器要求需要当前登录用户为管理员才能访问
+	 * @param BaseController $controller 当前控制器
+	 * @return BaseView|null
+	 */
+	function onNeedAdmin(BaseController $controller)
+	{
+		return null;
+	}
+
+	/**
+	 * 动作或控制器要求需要当前登录用户为超级管理员才能访问
+	 * @param BaseController $controller 当前控制器
+	 * @return BaseView|null
+	 */
+	function onNeedSuperAdmin(BaseController $controller)
+	{
+		return null;
 	}
 }
