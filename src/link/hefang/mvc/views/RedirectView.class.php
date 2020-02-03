@@ -32,7 +32,7 @@ class RedirectView extends BaseView
     <meta charset="$this->charset">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge,chrome=1">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge,ie=11,ie=10,ie=9,ie=8,chrome=1,chrome=1">
     <meta http-equiv="refresh" content="0;url=$url"> 
     <title>正在跳转...</title>
 </head>

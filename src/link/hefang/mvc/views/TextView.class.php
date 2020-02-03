@@ -10,12 +10,13 @@ defined('PHP_MVC') or die("Access Refused");
  */
 class TextView extends BaseView
 {
-	const PLAIN = "text/plain";
-	const HTML = "text/html";
 	const JSON = "application/json";
 	const XML = "application/xml";
-	const CSS = "text/css";
+	const YAML = "application/yaml";
 	const JAVASCRIPT = "application/javascript";
+	const PLAIN = "text/plain";
+	const HTML = "text/html";
+	const CSS = "text/css";
 
 	/**
 	 * TextView constructor.

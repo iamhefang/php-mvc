@@ -5,15 +5,12 @@ defined('PHP_MVC') or die("Access Refused");
 
 use link\hefang\helpers\CollectionHelper;
 use link\hefang\helpers\ObjectHelper;
-use link\hefang\helpers\StringHelper;
 use link\hefang\mvc\controllers\traits\ApiControllerTrait;
 use link\hefang\mvc\controllers\traits\NotApiControllerTrait;
 use link\hefang\mvc\controllers\traits\RestApiControllerTrait;
-use link\hefang\mvc\databases\SqlSort;
 use link\hefang\mvc\entities\Router;
 use link\hefang\mvc\interfaces\IController;
 use link\hefang\mvc\models\BaseLoginModel;
-use link\hefang\mvc\Mvc;
 use RuntimeException;
 
 /**
@@ -177,73 +174,6 @@ abstract class BaseController implements IController
 		return strtoupper($this->_header("method"));
 	}
 
-	/**
-	 * 获取当前登录用户
-	 * @return BaseLoginModel|null
-	 */
-	public function _getLogin()
-	{
-		$authType = Mvc::getAuthType();
-		if ($authType === "TOKEN" || $authType === "BOTH") {
-			$token = $this->_header("Authorization");
-			if (StringHelper::isNullOrBlank($token)) {
-				return null;
-			}
-			$login = Mvc::getApplication()->getLoginByToken($token);
-			if ($login instanceof BaseLoginModel) {
-				return $login;
-			}
-			$login = $login === false ? Mvc::getCache()->get($token, null) : null;
-			if ($login instanceof BaseLoginModel) {
-				return $login;
-			}
-		}
-		return $authType === "TOKEN" ? null : $this->_session(BaseLoginModel::LOGIN_SESSION_KEY);
-	}
-
-	/**
-	 * 获取分页请求时的页码
-	 * @param int $defaultValue 不传默认第一页
-	 * @return int
-	 */
-	public function _pageIndex(int $defaultValue = 1): int
-	{
-		$name = Mvc::getProperty("project.pagination.index.key", "pageIndex");
-		return intval($this->_request($name, $defaultValue));
-	}
-
-	/**
-	 * 获取分页请求时的页大小
-	 * @param int $defaultValue 不传默认读取配置文件中的数据
-	 * @return int
-	 */
-	public function _pageSize(int $defaultValue = 10): int
-	{
-		$name = Mvc::getProperty("project.pagination.size.key", "pageSize");
-		return intval($this->_request($name, $defaultValue));
-	}
-
-	/**
-	 * 获取数据列表请求时的排序信息
-	 * @param string|null $key
-	 * @param string $type
-	 * @param bool $nullsFirst
-	 * @return SqlSort|null
-	 */
-	public function _sort(
-		string $key = null,
-		string $type = null,
-		bool $nullsFirst = null)
-	{
-		$keyName = Mvc::getProperty("project.sort.key.name", "sortKey");
-		$typeName = Mvc::getProperty("project.sort.key.name", "sortType");
-		$key = $this->_request($keyName, $key);
-		$type = $this->_request($typeName, $type ?: '');
-		if (StringHelper::isNullOrBlank($key)) {
-			return null;
-		}
-		return new SqlSort($key, $type, $nullsFirst);
-	}
 
 	/**
 	 * 获取当前访问客户端的ip地址

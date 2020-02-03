@@ -23,7 +23,7 @@ class StatusResult implements IJsonObject, IMapObject, JsonSerializable
 	 * CodeResult constructor.
 	 * @param int $status 状态码
 	 * @param string $message 消息
-	 * @param string|array|null $result 响应内容
+	 * @param string|array|null|int|float|bool $result 响应内容
 	 */
 	public function __construct(int $status, string $message, $result)
 	{
@@ -75,7 +75,7 @@ class StatusResult implements IJsonObject, IMapObject, JsonSerializable
 	}
 
 	/**
-	 * @param mixed $result
+	 * @param string|array|null|int|float|bool $result
 	 */
 	public function setResult($result)
 	{

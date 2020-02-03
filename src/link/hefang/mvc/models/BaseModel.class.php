@@ -44,7 +44,7 @@ abstract class BaseModel implements IJsonObject, IMapObject, IModel, JsonSeriali
 	public static function get(string $id): BaseModel
 	{
 		$class = get_called_class();
-		if ($class === BaseModel::class || $class === BaseLoginModel::class) {
+		if ($class === BaseModel::class) {
 			throw new ModelException("不要直接调用BaseModel::get, 请使用具体模型类::get");
 		}
 		$database = self::_database();
@@ -76,7 +76,7 @@ abstract class BaseModel implements IJsonObject, IMapObject, IModel, JsonSeriali
 	public static function find(string $where)
 	{
 		$class = get_called_class();
-		if ($class === BaseModel::class || $class === BaseLoginModel::class) {
+		if ($class === BaseModel::class) {
 			throw new ModelException("不要直接调用BaseModel::find, 请使用具体模型类::find");
 		}
 		$database = self::_database();
