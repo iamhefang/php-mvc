@@ -40,6 +40,7 @@ class ImageView extends BaseView
 		ob_start();
 
 		//设置响应头
+		$this->flushHeaders();
 		header("Content-Type: $this->contentType; charset=$this->charset", true);
 
 		//输出视图

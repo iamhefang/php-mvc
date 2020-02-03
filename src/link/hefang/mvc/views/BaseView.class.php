@@ -3,6 +3,7 @@
 namespace link\hefang\mvc\views;
 defined('PHP_MVC') or die("Access Refused");
 
+use link\hefang\helpers\CollectionHelper;
 use link\hefang\mvc\exceptions\ViewNotCompiledException;
 use link\hefang\mvc\Mvc;
 
@@ -17,6 +18,47 @@ abstract class BaseView
 	protected $result = "";
 	protected $data = [];
 	protected $charset = "UTF-8";
+	protected $headers = [];
+
+	/**
+	 * 获取响应头
+	 * @param string|null $name 传name时返回对应的响应头，不传时返回所有响应头
+	 * @return array|string
+	 */
+	public function getHeaders(string $name = null)
+	{
+		return CollectionHelper::getOrDefault($this->headers, $name, $this->headers);
+	}
+
+	/**
+	 * @param array $headers
+	 */
+	public function setHeaders(array $headers)
+	{
+		$this->headers = array_merge($this->headers, $headers);
+	}
+
+	/**
+	 * @param string $key
+	 * @param $value
+	 * @return $this
+	 */
+	public function addHeader(string $key, $value): BaseView
+	{
+		$this->headers[$key] = $value;
+		return $this;
+	}
+
+	protected function flushHeaders()
+	{
+		$customHeaders = Mvc::getProperty("project.custom.header", []);
+		foreach ($customHeaders as $key => $value) {
+			header($key, $value);
+		}
+		foreach ($this->headers as $key => $value) {
+			header($key, $value);
+		}
+	}
 
 	/**
 	 * 当前视图的类型
@@ -59,11 +101,8 @@ abstract class BaseView
 		ob_start();
 
 		//设置响应头
+		$this->flushHeaders();
 		header("Content-Type: $this->contentType; charset=$this->charset", true);
-		$customHeaders = Mvc::getProperty("project.custom.header", []);
-		foreach ($customHeaders as $name => $value) {
-			header($name, $value);
-		}
 		//输出视图
 		echo $this->result;
 

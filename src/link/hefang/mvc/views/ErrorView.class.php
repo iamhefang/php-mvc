@@ -34,6 +34,7 @@ class ErrorView extends BaseView
 		$this->checkCompile();
 
 		header("HTTP/1.1 $this->code $this->result");
+		$this->flushHeaders();
 
 		while (ob_get_length() > 0 && @ob_end_flush()) ;
 		exit(0);
