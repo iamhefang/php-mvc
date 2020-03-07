@@ -5,8 +5,6 @@ namespace link\hefang\mvc\controllers\traits;
 
 
 use link\hefang\helpers\StringHelper;
-use link\hefang\mvc\controllers\BaseController;
-use link\hefang\mvc\exceptions\TraitException;
 use link\hefang\mvc\Mvc;
 use link\hefang\mvc\views\BaseView;
 use link\hefang\mvc\views\ErrorView;
@@ -74,19 +72,9 @@ trait NotApiControllerTrait
 		return new ImageView($img, $imageType);
 	}
 
-	public function _text(string $text, string $contentType = "text/plain"): BaseView
-	{
-		return new TextView($text, $contentType);
-	}
-
 	public function _redirect(string $url, bool $useJavascript = false): BaseView
 	{
 		return new RedirectView($url, $useJavascript);
-	}
-
-	public function _error(int $code, string $message = null): BaseView
-	{
-		return new ErrorView($code, $message);
 	}
 
 	/**
@@ -104,8 +92,18 @@ trait NotApiControllerTrait
 		return $this->_error(404, "Not Found");
 	}
 
+	public function _error(int $code, string $message = null): BaseView
+	{
+		return new ErrorView($code, $message);
+	}
+
 	public function _null(): BaseView
 	{
 		return $this->_text("");
+	}
+
+	public function _text(string $text, string $contentType = "text/plain"): BaseView
+	{
+		return new TextView($text, $contentType);
 	}
 }

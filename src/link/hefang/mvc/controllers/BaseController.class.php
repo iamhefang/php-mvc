@@ -10,7 +10,6 @@ use link\hefang\mvc\controllers\traits\NotApiControllerTrait;
 use link\hefang\mvc\controllers\traits\RestApiControllerTrait;
 use link\hefang\mvc\entities\Router;
 use link\hefang\mvc\interfaces\IController;
-use link\hefang\mvc\models\BaseLoginModel;
 use RuntimeException;
 
 /**
@@ -27,10 +26,6 @@ abstract class BaseController implements IController
 	 * @var Router
 	 */
 	private $router;
-	/**
-	 * @var BaseLoginModel
-	 */
-	private $currentLogin = null;
 	private $___post = [];
 	private $___request = [];
 
@@ -151,6 +146,15 @@ abstract class BaseController implements IController
 	}
 
 	/**
+	 * 获取当前请求的方法
+	 * @return string
+	 */
+	public function _method(): string
+	{
+		return strtoupper($this->_header("REQUEST_METHOD"));
+	}
+
+	/**
 	 * 获取指定请求头
 	 * @param string $name 要获取请求头的键
 	 * @param string|null $defaultValue 无对应值时返回默认值
@@ -158,22 +162,14 @@ abstract class BaseController implements IController
 	 */
 	public function _header(string $name, string $defaultValue = null)
 	{
-		$name = "HTTP_" . strtoupper(str_replace("-", "_", $name));
+		$name1 = "HTTP_" . strtoupper(str_replace("-", "_", $name));
 		$name2 = 'REDIRECT_' . $name;
 
 		return isset($_SERVER[$name]) ? $_SERVER[$name] : (
-		isset($_SERVER[$name2]) ? $_SERVER[$name2] : $defaultValue);
+		isset($_SERVER[$name1]) ? $_SERVER[$name1] : (
+		isset($_SERVER[$name2]) ? $_SERVER[$name2] : $defaultValue)
+		);
 	}
-
-	/**
-	 * 获取当前请求的方法
-	 * @return string
-	 */
-	public function _method(): string
-	{
-		return strtoupper($this->_header("method"));
-	}
-
 
 	/**
 	 * 获取当前访问客户端的ip地址

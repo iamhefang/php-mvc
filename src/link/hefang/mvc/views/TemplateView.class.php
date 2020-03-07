@@ -84,18 +84,6 @@ class TemplateView extends BaseView
 	}
 
 	/**
-	 * 编译变量
-	 * @param string $php
-	 * @return string
-	 */
-	protected function variable(string $php): string
-	{
-		return preg_replace_callback('#\{:([a-z0-9_]+)}#is', function (array $match) {
-			return "<?= \${$match[1]} ?>";
-		}, $php);
-	}
-
-	/**
 	 * 编译foreach语句
 	 * @param string $php
 	 * @return string
@@ -210,6 +198,13 @@ class TemplateView extends BaseView
 		}, $php);
 	}
 
+	protected function func(string $php): string
+	{
+		return preg_replace_callback('#\{func:(.*?)}#i', function (array $match) {
+			return "<?= {$match[1]} ?>";
+		}, $php);
+	}
+
 	protected function php(string $php): string
 	{
 		return preg_replace_callback('#\{php:(.*?)}#i', function (array $match) {
@@ -217,10 +212,15 @@ class TemplateView extends BaseView
 		}, $php);
 	}
 
-	protected function func(string $php): string
+	/**
+	 * 编译变量
+	 * @param string $php
+	 * @return string
+	 */
+	protected function variable(string $php): string
 	{
-		return preg_replace_callback('#\{func:(.*?)}#i', function (array $match) {
-			return "<?= {$match[1]} ?>";
+		return preg_replace_callback('#\{:([a-z0-9_]+)}#is', function (array $match) {
+			return "<?= \${$match[1]} ?>";
 		}, $php);
 	}
 
@@ -230,6 +230,24 @@ class TemplateView extends BaseView
 	 * @return string
 	 */
 	//todo: 模型编译未完成
+	public function render()
+	{
+		$this->checkCompile();
+
+		Mvc::isDebug() and DebugHelper::apiDebugField($this->data);
+
+		extract($this->data);
+
+		include $this->cacheFilePath;
+
+		//输出缓冲区内容并关闭所有输出缓冲区
+		while (ob_get_length() > 0 && @ob_end_flush()) ;
+
+		//关闭当前脚本
+		exit(0);
+	}
+
+
 	protected function model(string $php): string
 	{
 		return preg_replace_callback('#\{model:([0-9a-z_]+):([0-9a-z_])}(.*?)\{endmodel}#is', function (array $match) {
@@ -249,23 +267,5 @@ class TemplateView extends BaseView
 
 			return "<!-- todo: 模型编译未完成 -->";
 		}, $php);
-	}
-
-
-	public function render()
-	{
-		$this->checkCompile();
-
-		Mvc::isDebug() and DebugHelper::apiDebugField($this->data);
-
-		extract($this->data);
-
-		include $this->cacheFilePath;
-
-		//输出缓冲区内容并关闭所有输出缓冲区
-		while (ob_get_length() > 0 && @ob_end_flush()) ;
-
-		//关闭当前脚本
-		exit(0);
 	}
 }

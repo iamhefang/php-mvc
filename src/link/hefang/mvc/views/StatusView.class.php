@@ -8,8 +8,6 @@ use link\hefang\mvc\entities\StatusResult;
 
 class StatusView extends BaseView
 {
-	private $status = 200;
-	private $message = '';
 	const HTTP_STATUS_CODE = [
 		100 => "Continue",
 		101 => "Switching Protocol",
@@ -42,6 +40,8 @@ class StatusView extends BaseView
 		502 => "Bad Gateway",
 		504 => "Gateway Timeout"
 	];
+	private $status = 200;
+	private $message = '';
 
 	public function __construct(StatusResult $result)
 	{

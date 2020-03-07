@@ -7,16 +7,17 @@ namespace link\hefang\mvc\entities;
 use link\hefang\helpers\CollectionHelper;
 use link\hefang\helpers\ParseHelper;
 use link\hefang\helpers\StringHelper;
+use link\hefang\interfaces\IMapObject;
 
 /**
  * 动作方法的文档注释
  * @package link\hefang\mvc\entities
  */
-class ActionDocComment
+class ActionDocComment implements IMapObject
 {
-	private $method = [];
 	private $name = "";
-	private $needLogin = false;
+	private $path = "";
+	private $method = [];
 	private $preHandlePostData = true;
 
 //	/**
@@ -28,10 +29,6 @@ class ActionDocComment
 //		return $this->preHandlePostData;
 //	}
 
-	private $needUnlock = false;
-	private $needSuperAdmin = false;
-	private $needAdmin = false;
-
 	private function __construct(string $doc)
 	{
 		if (StringHelper::isNullOrBlank($doc)) {
@@ -40,29 +37,20 @@ class ActionDocComment
 		$lines = explode("\n", $doc);
 
 		for ($i = 1; $i < count($lines) - 1; $i++) {
-			$line = ltrim($lines[$i], " *");
-			$line = trim($line);
+			$line = trim($lines[$i], " *\t\n\r\0\x0B");
+//			$line = rtrim($line);
 			$items = explode(" ", $line);
 			switch ($items[0]) {
-				//需要登录
-				case "@needLogin":
-					$this->needLogin = self::boolOrString($items, "需要登录");
-					break;
-				//支持的请求方法
-				case  "@method":
-					for ($idx = 1; $idx < count($items); $i++) {
+				case  "@method"://支持的请求方法
+					for ($idx = 1; $idx < count($items); $idx++) {
 						$this->method[] = strtoupper($items[$idx]);
 					}
 					break;
-				//当前操作需要解锁
-				case "@needUnlock":
-					$this->needUnlock = self::boolOrString($items, "您当前已锁屏，请先解锁");
+				case "@name"://控制器或动作名
+					$this->name = CollectionHelper::getOrDefault($items, 1);
 					break;
-				case "@needSuperAdmin":
-					$this->needSuperAdmin = self::boolOrString($items, "需要超级管理员权限");
-					break;
-				case "@needAdmin":
-					$this->needAdmin = self::boolOrString($items, "需要管理员权限");
+				case "@path"://动作访问路径
+					$this->path = CollectionHelper::getOrDefault($items, 1);
 					break;
 				case  "@preHandlePostData":
 					$this->preHandlePostData = ParseHelper::parseBoolean(CollectionHelper::getOrDefault($items, 1, "true"), true);
@@ -70,19 +58,6 @@ class ActionDocComment
 			}
 		}
 	}
-
-	private static function boolOrString(array $items, string $defVal)
-	{
-		if (count($items) < 2) {
-			return $defVal;
-		}
-		$msg = $items[1];
-		if (strcasecmp($msg, "false") === 0) {
-			return false;
-		}
-		return StringHelper::isNullOrBlank($msg) || strcasecmp($msg, "true") === 0 ? $defVal : $msg;
-	}
-
 
 	/**
 	 * 解析控制器构造方法和动作上的文档注释
@@ -98,21 +73,54 @@ class ActionDocComment
 	}
 
 	/**
-	 * 获取当前控制器或动作名
-	 * @return string
+	 * @param string $doc
+	 * @return array
 	 */
-	public function getName(): string
+	static function parse2array(string $doc): array
 	{
-		return $this->name;
+		if (StringHelper::isNullOrBlank($doc)) {
+//			throw new DocCommentException("注释文档不能为空");
+			return [];
+		}
+		$lines = explode("\n", $doc);
+		$docArray = [];
+		for ($i = 1; $i < count($lines) - 1; $i++) {
+			$line = ltrim($lines[$i], " *");
+			$line = trim($line);
+			$items = explode(" ", $line);
+			$docArray[substr($items[0], 1)] = self::boolOrString($items, "");
+		}
+		return $docArray;
+	}
+
+	private static function boolOrString(array $items, string $defVal)
+	{
+		if (count($items) < 2) {
+			return $defVal;
+		}
+		$msg = $items[1];
+		if (strcasecmp($msg, "false") === 0) {
+			return false;
+		}
+		return StringHelper::isNullOrBlank($msg) || strcasecmp($msg, "true") === 0 ? $defVal : $msg;
+	}
+
+	public function toMap(): array
+	{
+		return [
+			"name" => $this->getName(),
+			"method" => $this->getMethod(),
+			"path" => $this->getPath()
+		];
 	}
 
 	/**
-	 * 当前动作是否需求登录
-	 * @return string|bool|null
+	 * 获取当前控制器或动作名
+	 * @return string|null
 	 */
-	public function isNeedLogin()
+	public function getName()
 	{
-		return $this->needLogin;
+		return $this->name;
 	}
 
 	/**
@@ -125,29 +133,10 @@ class ActionDocComment
 	}
 
 	/**
-	 * 当前操作是否需求解锁
-	 * @return bool|string
+	 * @return string|null
 	 */
-	public function isNeedUnlock()
+	public function getPath()
 	{
-		return $this->needUnlock;
-	}
-
-	/**
-	 * 当前登录需要超级管理员权限
-	 * @return bool|string
-	 */
-	public function isNeedSuperAdmin()
-	{
-		return $this->needSuperAdmin;
-	}
-
-	/**
-	 * 当前登录需要管理员权限
-	 * @return bool|string
-	 */
-	public function isNeedAdmin()
-	{
-		return $this->needAdmin;
+		return $this->path;
 	}
 }

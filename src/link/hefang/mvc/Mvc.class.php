@@ -101,18 +101,6 @@ class Mvc
 	private static $cache = null;
 
 	/**
-	 * 读取配置文件中的配置项
-	 * @param string $key
-	 * @param null|string|array|bool|int|float $defaultValue
-	 * @return null|string|array|bool|int|float
-	 */
-	public static function getProperty(string $key, $defaultValue = null)
-	{
-//        return self::$properties->getProperty($key, $defaultValue);
-		return CollectionHelper::getOrDefault(self::$settings, $key, $defaultValue);
-	}
-
-	/**
 	 * 读取全局配置项, Application::init()返回的配置项和Mvc::addConfig添加的配置项
 	 * @param string $key
 	 * @param mixed|null $defaultValue
@@ -142,6 +130,12 @@ class Mvc
 		self::$globalConfig[$name] = $value;
 	}
 
+	public static function errorHandler(int $errno, string $errstr, string $errfile = null, int $errline = -1)
+	{
+		$e = new PhpErrorException($errno, $errstr, $errfile, $errline);
+		self::exceptionHandler($e);
+	}
+
 	public static function exceptionHandler(Throwable $exception)
 	{
 		self::$logger and self::$logger->error($exception->getMessage(), $exception->getMessage(), $exception);
@@ -154,12 +148,6 @@ class Mvc
 				exit(0);
 			}
 		}
-	}
-
-	public static function errorHandler(int $errno, string $errstr, string $errfile = null, int $errline = -1)
-	{
-		$e = new PhpErrorException($errno, $errstr, $errfile, $errline);
-		self::exceptionHandler($e);
 	}
 
 	/**
@@ -352,12 +340,6 @@ class Mvc
 		self::initControllers();
 	}
 
-	private static function initUrlPrefix()
-	{
-		self::$urlPrefix = self::getProperty('prefix.url.main');
-		self::$fileUrlPrefix = self::getProperty('prefix.url.file');
-	}
-
 	private static function initStaticVars()
 	{
 		self::$properties = new Properties();
@@ -406,6 +388,42 @@ class Mvc
 		self::$logger->debug("配置项", print_r(self::$settings, true));
 	}
 
+	private static function initCaches()
+	{
+		$cacheClass = self::getProperty("cache.class");
+		$cacheOption = self::getProperty("cache.option");
+		if (StringHelper::isNullOrBlank($cacheClass)) {
+//            self::$logger->warn("缓存类未设置", "正在使用默认缓存类: " . SimpleCache::class);
+			return;
+		}
+		if (!class_exists($cacheClass, true)) {
+			self::$logger->warn("缓存类不存在", $cacheClass);
+			return;
+		}
+		try {
+			$cache = new $cacheClass($cacheOption);
+			if (!($cache instanceof ICache)) {
+				self::$logger->error("缓存类应为" . ICache::class . "的实现类", $cacheClass);
+				return;
+			}
+			self::$cache = $cache;
+		} catch (Throwable $exception) {
+			self::$logger->error("实例化缓存类时出现异常", $exception->getMessage(), $exception);
+		}
+	}
+
+	/**
+	 * 读取配置文件中的配置项
+	 * @param string $key
+	 * @param null|string|array|bool|int|float $defaultValue
+	 * @return null|string|array|bool|int|float
+	 */
+	public static function getProperty(string $key, $defaultValue = null)
+	{
+//        return self::$properties->getProperty($key, $defaultValue);
+		return CollectionHelper::getOrDefault(self::$settings, $key, $defaultValue);
+	}
+
 	private static function initLogger()
 	{
 		$loggerClass = self::getProperty("logger.class");
@@ -426,6 +444,12 @@ class Mvc
 		} else {
 			self::$logger->error("日志类应为'ILogger'的实现类", $loggerClass);
 		}
+	}
+
+	private static function initUrlPrefix()
+	{
+		self::$urlPrefix = self::getProperty('prefix.url.main');
+		self::$fileUrlPrefix = self::getProperty('prefix.url.file');
 	}
 
 	private static function initProject()
@@ -551,33 +575,26 @@ class Mvc
 		foreach ($classes as $class) {
 			try {
 				$reflection = new ReflectionClass($class);
-				if (!$reflection->isSubclassOf(BaseController::class)) continue;
-				if (!$class::isController()) continue;
+				if (
+					!$reflection->isSubclassOf(BaseController::class)
+					|| $reflection->isAbstract()
+					|| !$class::isController()
+				) continue;
 				$module = $class::module();
 				$controller = $class::name();
 				$ck = strtolower("$module/$controller");
 				$doc = ActionDocComment::parse($reflection->getDocComment());
 				self::$controllers[$ck] = [
 					"class" => $reflection->getName(),
-					"doc" => [
-						"needLogin" => $doc->isNeedLogin(),
-						"needAdmin" => $doc->isNeedAdmin(),
-						"needSuperAdmin" => $doc->isNeedSuperAdmin(),
-						"needUnlock" => $doc->isNeedUnlock()
-					]
+					"doc" => $doc->toMap()
 				];
 				self::initActions($reflection, $ck);
 			} catch (ReflectionException $e) {
 			}
 		}
-		$cs = join(",", array_map(function ($v, $k) {
-			return "'$k'=>'$v'";
-		}, self::$controllers, array_keys(self::$controllers)));
-		$as = join(",", array_map(function ($v, $k) {
-			return "'$k'=>'$v'";
-		}, self::$actions, array_keys(self::$actions)));
+		$phpString = CollectionHelper::stringify(["controllers" => self::$controllers, "actions" => self::$actions]);
 		$cache = <<<CONTROLLERS
-        <?php return ['controllers'=>[$cs],'actions'=>[$as]]; ?>
+        <?php return $phpString; ?>
 CONTROLLERS;
 		file_put_contents($controllerCacheFile, trim($cache));
 	}
@@ -611,12 +628,7 @@ CONTROLLERS;
 				self::$actions[strtolower("$controllerKey/$actionName")] = [
 					"class" => $controllerClass->getName(),
 					"method" => $method->getName(),
-					"doc" => [
-						"needLogin" => $doc->isNeedLogin(),
-						"needAdmin" => $doc->isNeedAdmin(),
-						"needSuperAdmin" => $doc->isNeedSuperAdmin(),
-						"needUnlock" => $doc->isNeedUnlock()
-					]
+					"doc" => $doc->toMap()
 				];
 			}
 		}
@@ -664,30 +676,6 @@ INFO
 		);
 	}
 
-	private static function initCaches()
-	{
-		$cacheClass = self::getProperty("cache.class");
-		$cacheOption = self::getProperty("cache.option");
-		if (StringHelper::isNullOrBlank($cacheClass)) {
-//            self::$logger->warn("缓存类未设置", "正在使用默认缓存类: " . SimpleCache::class);
-			return;
-		}
-		if (!class_exists($cacheClass, true)) {
-			self::$logger->warn("缓存类不存在", $cacheClass);
-			return;
-		}
-		try {
-			$cache = new $cacheClass($cacheOption);
-			if (!($cache instanceof ICache)) {
-				self::$logger->error("缓存类应为" . ICache::class . "的实现类", $cacheClass);
-				return;
-			}
-			self::$cache = $cache;
-		} catch (Throwable $exception) {
-			self::$logger->error("实例化缓存类时出现异常", $exception->getMessage(), $exception);
-		}
-	}
-
 	public function start()
 	{
 		ob_start();
@@ -698,7 +686,6 @@ INFO
 			$path = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : (
 			isset($_SERVER["ORIG_PATH_INFO"]) ? $_SERVER["ORIG_PATH_INFO"] : (
 			isset($_SERVER['REDIRECT_PATH_INFO']) ? $_SERVER["REDIRECT_PATH_INFO"] : '/'));
-//       $path = CollectionHelper::getOrDefault($_SERVER, "PATH_INFO", "/");
 		}
 		$path = urldecode($path);
 		/**
@@ -742,9 +729,13 @@ INFO
 		$ctrlDoc = $ctrlInfo["doc"];
 
 		$actMtdInfo = self::$actions[$ak];
-		$actMtdDoc = $actMtdInfo["doc"];
 
 		$controller = self::_controller($ctrlInfo["class"]);
+
+		if (!empty($ctrlDoc["method"]) && !in_array($controller->_method(), $ctrlDoc["method"])) {
+			return $controller->_restApiMethodNotAllowed();
+		}
+
 		$controller->setRouter($router);
 
 		$type = $controller->_header("Content-Type");
@@ -766,9 +757,18 @@ INFO
 			} catch (Throwable $e) {
 			}
 		}
-
-		$view = $controller->$actMtdInfo["name"]($router->getCmd());
+		$actionMethod = $actMtdInfo["method"];
+		$actDoc = $actMtdInfo["doc"];
+		if (!empty($actDoc["method"]) && !in_array($controller->_method(), $actDoc["method"])) {
+			return $controller->_restApiMethodNotAllowed();
+		}
+		$view = $controller->$actionMethod($router->getCmd());
 		return ($view instanceof BaseView) ? $view : null;
+	}
+
+	private static function _controller(string $class): BaseController
+	{
+		return new $class();
 	}
 
 	/**
@@ -783,10 +783,5 @@ INFO
 		$file = str_replace("/theme/", PATH_THEMES . DIRECTORY_SEPARATOR, $path);
 		$file = str_replace('/', DIRECTORY_SEPARATOR, $file);
 		return new FileView($file);
-	}
-
-	private static function _controller(string $class): BaseController
-	{
-		return new $class();
 	}
 }

@@ -46,61 +46,6 @@ class Router implements IMapObject, IJsonObject
 		$this->map["theme"] = ObjectHelper::nullOrDefault($theme, Mvc::getConfig('system|theme', Mvc::getDefaultTheme()));
 	}
 
-
-	/**
-	 * @return string
-	 */
-	public function getModule(): string
-	{
-		return $this->map["module"];
-	}
-
-	/**
-	 * @param string $module
-	 * @return Router
-	 */
-	public function setModule(string $module): Router
-	{
-		$this->map["module"] = self::checkUnderLine($module);
-		return $this;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getController(): string
-	{
-		return $this->map["controller"];
-	}
-
-	/**
-	 * @param string $controller
-	 * @return Router
-	 */
-	public function setController(string $controller): Router
-	{
-		$this->map["controller"] = self::checkUnderLine($controller);
-		return $this;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getAction(): string
-	{
-		return $this->map["action"];
-	}
-
-	/**
-	 * @param string $action
-	 * @return Router
-	 */
-	public function setAction(string $action): Router
-	{
-		$this->map["action"] = self::checkUnderLine($action);
-		return $this;
-	}
-
 	/**
 	 * @return string
 	 */
@@ -110,49 +55,11 @@ class Router implements IMapObject, IJsonObject
 	}
 
 	/**
-	 * @param string $cmd
-	 * @return Router
-	 */
-	public function setCmd(string $cmd): Router
-	{
-		$this->map["cmd"] = $cmd;
-		return $this;
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getFormat(): string
 	{
 		return $this->map["format"];
-	}
-
-	/**
-	 * @param string $format
-	 * @return Router
-	 */
-	public function setFormat(string $format): Router
-	{
-		$this->map["format"] = strtolower($format);
-		return $this;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getTheme(): string
-	{
-		return $this->map["theme"];
-	}
-
-	/**
-	 * @param string $theme
-	 * @return Router
-	 */
-	public function setTheme(string $theme): Router
-	{
-		$this->map["theme"] = $theme;
-		return $this;
 	}
 
 	public static function parsePath(string $path): Router
@@ -204,12 +111,104 @@ class Router implements IMapObject, IJsonObject
 		return $router;
 	}
 
+	/**
+	 * @param string $cmd
+	 * @return Router
+	 */
+	public function setCmd(string $cmd): Router
+	{
+		$this->map["cmd"] = $cmd;
+		return $this;
+	}
+
+	/**
+	 * @param string $action
+	 * @return Router
+	 */
+	public function setAction(string $action): Router
+	{
+		$this->map["action"] = self::checkUnderLine($action);
+		return $this;
+	}
+
 	public static function checkUnderLine(string $str): string
 	{
 		if (preg_match('/^\d.*?/i', $str)) {
 			return '_' . strtolower($str);
 		}
 		return strtolower($str);
+	}
+
+	/**
+	 * @param string $controller
+	 * @return Router
+	 */
+	public function setController(string $controller): Router
+	{
+		$this->map["controller"] = self::checkUnderLine($controller);
+		return $this;
+	}
+
+	/**
+	 * @param string $module
+	 * @return Router
+	 */
+	public function setModule(string $module): Router
+	{
+		$this->map["module"] = self::checkUnderLine($module);
+		return $this;
+	}
+
+	/**
+	 * @param string $format
+	 * @return Router
+	 */
+	public function setFormat(string $format): Router
+	{
+		$this->map["format"] = strtolower($format);
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getModule(): string
+	{
+		return $this->map["module"];
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getController(): string
+	{
+		return $this->map["controller"];
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAction(): string
+	{
+		return $this->map["action"];
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getTheme(): string
+	{
+		return $this->map["theme"];
+	}
+
+	/**
+	 * @param string $theme
+	 * @return Router
+	 */
+	public function setTheme(string $theme): Router
+	{
+		$this->map["theme"] = $theme;
+		return $this;
 	}
 
 	public function toJsonString(): string

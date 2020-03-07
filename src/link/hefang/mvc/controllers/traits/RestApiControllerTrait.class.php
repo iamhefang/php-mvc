@@ -19,6 +19,16 @@ use Throwable;
 trait RestApiControllerTrait
 {
 	/**
+	 * 200 请求成功
+	 * @param mixed $data 数据
+	 * @return StatusView
+	 */
+	public function _restApiOk($data = "ok"): StatusView
+	{
+		return $this->_restApi($data, 200);
+	}
+
+	/**
 	 * 返回rest风格接口数据
 	 * @param mixed $data 数据
 	 * @param int $code 状态码
@@ -29,16 +39,6 @@ trait RestApiControllerTrait
 	{
 		$message = $message ?: CollectionHelper::getOrDefault(StatusView::HTTP_STATUS_CODE, $code, $message || "");
 		return new StatusView(new StatusResult($code, $message, $data));
-	}
-
-	/**
-	 * 200 请求成功
-	 * @param mixed $data 数据
-	 * @return StatusView
-	 */
-	public function _restApiOk($data = "ok"): StatusView
-	{
-		return $this->_restApi($data, 200);
 	}
 
 	/**
@@ -106,7 +106,7 @@ trait RestApiControllerTrait
 	 * @param string $data message
 	 * @return StatusView
 	 */
-	public function _methodNotAllowed($data = "请求方法不正确"): StatusView
+	public function _restApiMethodNotAllowed($data = "请求方法不正确"): StatusView
 	{
 		return $this->_restApi($data, 405);
 	}
@@ -141,7 +141,7 @@ trait RestApiControllerTrait
 	{
 		if ($message === null) {
 			if ($exception instanceof SqlException) {
-				$message = "读取数据时出现异常";
+				$message = "读写数据时出现异常";
 			} else if ($exception instanceof ModelException) {
 				$message = "解析数据时出现异常";
 			} else {
@@ -152,4 +152,13 @@ trait RestApiControllerTrait
 		return $this->_restApi($message, 500);
 	}
 
+	/**
+	 * 501 接口还未实现
+	 * @param string $message
+	 * @return StatusView
+	 */
+	public function _restApiNotImplemented(string $message = "该接口还未实现"): StatusView
+	{
+		return $this->_restApi($message, 501);
+	}
 }

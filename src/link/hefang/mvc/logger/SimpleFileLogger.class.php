@@ -10,8 +10,8 @@ use Throwable;
 
 class SimpleFileLogger implements ILogger
 {
-	private $level;
 	private static $useConsole = false;
+	private $level;
 
 	/**
 	 * SimpleFileLogger constructor.
@@ -20,6 +20,14 @@ class SimpleFileLogger implements ILogger
 	public function __construct(LogLevel $level = null)
 	{
 		$this->level = $level === null ? LogLevel::warn() : $level;
+	}
+
+	static function init()
+	{
+		if (!is_writable(PATH_LOGS)) {
+			self::$useConsole = true;
+			self::write("ERROR", "日志目录不可写, 已自动改为在html中输出注释", PATH_LOGS);
+		}
 	}
 
 	public function getLevel(): LogLevel
@@ -35,30 +43,6 @@ class SimpleFileLogger implements ILogger
 	public function log($content, string $name = null)
 	{
 		if ($this->level->getValue() == LogLevel::NONE && !Mvc::isDebug()) return;
-		self::write(strtoupper(__FUNCTION__), $name, $content);
-	}
-
-	public function notice($content, string $name = null)
-	{
-		if ($this->level->getValue() == LogLevel::NOTICE && !Mvc::isDebug()) return;
-		self::write(strtoupper(__FUNCTION__), $name, $content);
-	}
-
-	public function warn($content, string $name = null, Throwable $e = null)
-	{
-		if ($this->level->getValue() == LogLevel::WARN && !Mvc::isDebug()) return;
-		self::write(strtoupper(__FUNCTION__), $name, $content, $e);
-	}
-
-	public function error($content, string $name = null, Throwable $e = null)
-	{
-		if ($this->level->getValue() == LogLevel::ERROR && !Mvc::isDebug()) return;
-		self::write(strtoupper(__FUNCTION__), $name, $content, $e);
-	}
-
-	public function debug($content, string $name = null)
-	{
-		if (!Mvc::isDebug()) return;
 		self::write(strtoupper(__FUNCTION__), $name, $content);
 	}
 
@@ -86,12 +70,28 @@ CONTENT;
 		}
 	}
 
-	static function init()
+	public function notice($content, string $name = null)
 	{
-		if (!is_writable(PATH_LOGS)) {
-			self::$useConsole = true;
-			self::write("ERROR", "日志目录不可写, 已自动改为在html中输出注释", PATH_LOGS);
-		}
+		if ($this->level->getValue() == LogLevel::NOTICE && !Mvc::isDebug()) return;
+		self::write(strtoupper(__FUNCTION__), $name, $content);
+	}
+
+	public function warn($content, string $name = null, Throwable $e = null)
+	{
+		if ($this->level->getValue() == LogLevel::WARN && !Mvc::isDebug()) return;
+		self::write(strtoupper(__FUNCTION__), $name, $content, $e);
+	}
+
+	public function error($content, string $name = null, Throwable $e = null)
+	{
+		if ($this->level->getValue() == LogLevel::ERROR && !Mvc::isDebug()) return;
+		self::write(strtoupper(__FUNCTION__), $name, $content, $e);
+	}
+
+	public function debug($content, string $name = null)
+	{
+		if (!Mvc::isDebug()) return;
+		self::write(strtoupper(__FUNCTION__), $name, $content);
 	}
 }
 

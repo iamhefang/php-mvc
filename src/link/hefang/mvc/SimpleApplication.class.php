@@ -5,7 +5,6 @@ defined('PHP_MVC') or die("Access Refused");
 
 use link\hefang\mvc\entities\Router;
 use link\hefang\mvc\interfaces\IApplication;
-use link\hefang\mvc\models\BaseLoginModel;
 use link\hefang\mvc\views\BaseView;
 use Throwable;
 

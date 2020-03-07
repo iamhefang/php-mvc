@@ -7,13 +7,12 @@ use link\hefang\helpers\ObjectHelper;
 
 class SqlSort
 {
-	private $key = "";
-	private $type = "";
-	private $nullsFirst = false;
-
 	const TYPE_DEFAULT = "";
 	const TYPE_ASC = "ASC";
 	const TYPE_DESC = "DESC";
+	private $key = "";
+	private $type = "";
+	private $nullsFirst = false;
 
 	/**
 	 * SqlSort constructor.

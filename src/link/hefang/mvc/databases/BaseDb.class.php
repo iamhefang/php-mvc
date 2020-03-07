@@ -44,15 +44,15 @@ abstract class BaseDb
 		$this->charset = ObjectHelper::nullOrDefault($charset, $this->charset);
 	}
 
-	public abstract function errorInfo();
-
-	public abstract function errorCode();
-
 	/**
 	 * 获取到目前为止已执行的sql语句
 	 * @return array
 	 */
 	public static abstract function getExecutedSqls(): array;
+
+	public abstract function errorInfo();
+
+	public abstract function errorCode();
 
 	/**
 	 * 插入记录
@@ -107,16 +107,6 @@ abstract class BaseDb
 	): Pager;
 
 	/**
-	 * 获取一条记录
-	 * @param string $table
-	 * @param Sql|string|null $where
-	 * @param array|null $fields
-	 * @return mixed
-	 * @throws SqlException
-	 */
-	public abstract function row(string $table, $where = null, array $fields = null);
-
-	/**
 	 * 查询某个字段
 	 * @param string $table
 	 * @param string $column
@@ -129,6 +119,16 @@ abstract class BaseDb
 		$row = $this->row($table, $where, [$column]);
 		return CollectionHelper::getOrDefault($row ?: [], $column, null);
 	}
+
+	/**
+	 * 获取一条记录
+	 * @param string $table
+	 * @param Sql|string|null $where
+	 * @param array|null $fields
+	 * @return mixed
+	 * @throws SqlException
+	 */
+	public abstract function row(string $table, $where = null, array $fields = null);
 
 	/**
 	 * 计算记录数

@@ -6,9 +6,7 @@ namespace link\hefang\mvc\controllers\traits;
 
 use link\hefang\helpers\ObjectHelper;
 use link\hefang\helpers\StringHelper;
-use link\hefang\mvc\controllers\BaseController;
 use link\hefang\mvc\entities\ApiResult;
-use link\hefang\mvc\exceptions\TraitException;
 use link\hefang\mvc\Mvc;
 use link\hefang\mvc\views\BaseView;
 use link\hefang\mvc\views\TextView;
@@ -24,15 +22,21 @@ trait ApiControllerTrait
 //	}
 
 
+	public function _apiSuccess($result = "ok"): BaseView
+	{
+		return $this->_api(new ApiResult(true, $result));
+	}
+
 	public function _api(ApiResult $result): BaseView
 	{
 		ObjectHelper::checkNull($result);
 		return $this->_text($result->toJsonString(), TextView::JSON);
 	}
 
-	public function _apiSuccess($result = "ok"): BaseView
+	public function _needLogin(string $message = null): BaseView
 	{
-		return $this->_api(new ApiResult(true, $result));
+		$message = StringHelper::isNullOrBlank($message) ? "您当前未登录或登录已超时, 请登录后重试" : $message;
+		return $this->_apiFailed($message, true);
 	}
 
 	public function _apiFailed(
@@ -51,12 +55,6 @@ trait ApiControllerTrait
 			$needPassword, $needAdmin, $needSuperAdmin,
 			$needPermission, $needUnlock, $needDeveloper
 		));
-	}
-
-	public function _needLogin(string $message = null): BaseView
-	{
-		$message = StringHelper::isNullOrBlank($message) ? "您当前未登录或登录已超时, 请登录后重试" : $message;
-		return $this->_apiFailed($message, true);
 	}
 
 	public function _needSuperAdmin(string $message = null): BaseView

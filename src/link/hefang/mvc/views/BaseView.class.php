@@ -49,17 +49,6 @@ abstract class BaseView
 		return $this;
 	}
 
-	protected function flushHeaders()
-	{
-		$customHeaders = Mvc::getProperty("project.custom.header", []);
-		foreach ($customHeaders as $key => $value) {
-			header($key, $value);
-		}
-		foreach ($this->headers as $key => $value) {
-			header($key, $value);
-		}
-	}
-
 	/**
 	 * 当前视图的类型
 	 * @return string
@@ -76,15 +65,6 @@ abstract class BaseView
 	public function getContentLength(): int
 	{
 		return strlen($this->result);
-	}
-
-	/**
-	 * 检查当前视图是否已编译
-	 * @throws ViewNotCompiledException
-	 */
-	protected function checkCompile()
-	{
-		if (!$this->isCompiled) throw new ViewNotCompiledException();
 	}
 
 	/**
@@ -111,6 +91,26 @@ abstract class BaseView
 
 		//关闭当前脚本
 		exit(0);
+	}
+
+	/**
+	 * 检查当前视图是否已编译
+	 * @throws ViewNotCompiledException
+	 */
+	protected function checkCompile()
+	{
+		if (!$this->isCompiled) throw new ViewNotCompiledException();
+	}
+
+	protected function flushHeaders()
+	{
+		$customHeaders = Mvc::getProperty("project.custom.header", []);
+		foreach ($customHeaders as $key => $value) {
+			header($key, $value);
+		}
+		foreach ($this->headers as $key => $value) {
+			header($key, $value);
+		}
 	}
 
 	/**
