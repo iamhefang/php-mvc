@@ -21,6 +21,7 @@ use link\hefang\mvc\entities\ActionDocComment;
 use link\hefang\mvc\entities\Router;
 use link\hefang\mvc\exceptions\ActionNotFoundException;
 use link\hefang\mvc\exceptions\ControllerNotFoundException;
+use link\hefang\mvc\exceptions\MethodNotAllowException;
 use link\hefang\mvc\exceptions\PhpErrorException;
 use link\hefang\mvc\interfaces\IApplication;
 use link\hefang\mvc\logger\SimpleFileLogger;
@@ -739,28 +740,31 @@ INFO
 		$controller->setRouter($router);
 
 		$type = $controller->_header("Content-Type");
-		if (StringHelper::contains($type, true, "json")) {
-			try {
+		try {
+			$post = null;
+			if (StringHelper::contains($type, true, "json")) {
 				self::$postRawJSON = @file_get_contents("php://input");
 				$post = @json_decode(self::$postRawJSON, true);
-				$postField = ObjectHelper::getProperty($ctrlInfo, "___post");
-				$requestField = ObjectHelper::getProperty($ctrlInfo, "___request");
+				$postField = ObjectHelper::getProperty($ctrlInfo["class"], "___post");
 				if ($postField) {
 					$postField->setAccessible(true);
 					$postField->setValue($controller, is_array($post) ? array_merge($post, $_POST) : $_POST);
 				}
-
-				if ($requestField) {
-					$requestField->setAccessible(true);
-					$requestField->setValue($controller, is_array($post) ? array_merge($_REQUEST, $post) : $_REQUEST);
-				}
-			} catch (Throwable $e) {
 			}
+
+			$requestField = ObjectHelper::getProperty($ctrlInfo["class"], "___request");
+
+			if ($requestField) {
+				$requestField->setAccessible(true);
+				$requestField->setValue($controller, is_array($post) ? array_merge($_REQUEST, $post) : $_REQUEST);
+			}
+		} catch (Throwable $e) {
+			Mvc::getLogger()->error("设置post和request值时出现异常", get_called_class(), $e);
 		}
 		$actionMethod = $actMtdInfo["method"];
 		$actDoc = $actMtdInfo["doc"];
 		if (!empty($actDoc["method"]) && !in_array($controller->_method(), $actDoc["method"])) {
-			return $controller->_restApiMethodNotAllowed();
+			throw new MethodNotAllowException("不支持'{$controller->_method()}'请求方法");
 		}
 		$view = $controller->$actionMethod($router->getCmd());
 		return ($view instanceof BaseView) ? $view : null;

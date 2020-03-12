@@ -106,10 +106,10 @@ abstract class BaseView
 	{
 		$customHeaders = Mvc::getProperty("project.custom.header", []);
 		foreach ($customHeaders as $key => $value) {
-			header($key, $value);
+			header("$key: $value");
 		}
 		foreach ($this->headers as $key => $value) {
-			header($key, $value);
+			header("$key: $value");
 		}
 	}
 
