@@ -12,6 +12,7 @@ use link\hefang\interfaces\IMapObject;
 use link\hefang\mvc\databases\BaseDb;
 use link\hefang\mvc\databases\Mysql;
 use link\hefang\mvc\databases\Sql;
+use link\hefang\mvc\databases\SqlSort;
 use link\hefang\mvc\entities\Pager;
 use link\hefang\mvc\exceptions\ModelException;
 use link\hefang\mvc\exceptions\SqlException;
@@ -19,6 +20,7 @@ use link\hefang\mvc\interfaces\IModel;
 use link\hefang\mvc\Mvc;
 use ReflectionClass;
 use ReflectionException;
+use RuntimeException;
 use Throwable;
 
 
@@ -124,10 +126,69 @@ abstract class BaseModel implements IJsonObject, IMapObject, IModel, JsonSeriali
 		$method = str_replace('_', '', __FUNCTION__);
 		$fields = $class::$method();
 		$finalFields = [];
+		foreach ($fields as $field) {
+			if ($field instanceof ModelField) {
+				$finalFields[$field->getField()] = $field->getProp();
+			} else if (is_string($field)) {
+				$finalFields[$field] = $field;
+			}
+		}
 		foreach ($fields as $key => $value) {
 			$finalFields[is_numeric($key) ? $value : $key] = $value;
 		}
 		return $finalFields;
+	}
+
+	public static function prop2field(string $prop)
+	{
+		self::_checkCalledClass(__FUNCTION__);
+		return CollectionHelper::getOrDefault(array_flip(self::_fields()), $prop, $prop);
+	}
+
+	/**
+	 *
+	 * @param string|null $query
+	 * @return string
+	 */
+	public static function query2sql($query): string
+	{
+		self::_checkCalledClass(__FUNCTION__);
+		if (StringHelper::isNullOrBlank($query)) return "";
+
+		$query = preg_replace_callback("/([-a-z0-9_]+)(=|~=|!=|>|<|>=|<=)([^!%&|~=)(]+)/i", function (array $match) {
+			$field = self::prop2field($match[1]);
+			if ($match[2] === "~=") {
+				return "(`{$field}` LIKE '%{$match[3]}' OR `{$field}` LIKE '%{$match[3]}%' OR `{$field}` LIKE '{$match[3]}%')";
+			}
+			return "`{$field}`{$match[2]}'{$match[3]}'";
+		}, $query);
+		$query = str_replace("&", " AND ", $query);
+		$query = str_replace("|", " OR ", $query);
+		return $query;
+	}
+
+	/**
+	 * @param $sort
+	 * @return SqlSort[]|null
+	 */
+	public static function sort2sql($sort)
+	{
+		self::_checkCalledClass(__FUNCTION__);
+		if (StringHelper::isNullOrBlank($sort)) return null;
+//		$class = get_called_class();
+		$fields = explode(",", $sort);
+		return array_map(function ($line) {
+			$sqlSort = new SqlSort();
+			if (StringHelper::startsWith($line, false, "-", "+")) {
+				$sqlSort->setKey(substr($line, 1));
+				if ($line{0} === "-") {
+					$sqlSort->setType(SqlSort::TYPE_DESC);
+				}
+			} else {
+				$sqlSort->setKey($line)->setType(SqlSort::TYPE_DEFAULT);
+			}
+			return $sqlSort->setKey(self::prop2field($sqlSort->getKey()));
+		}, $fields);
 	}
 
 	/**
@@ -157,7 +218,7 @@ abstract class BaseModel implements IJsonObject, IMapObject, IModel, JsonSeriali
 	 * @param int $pageSize 页大小
 	 * @param string|null $search 要搜索的内容
 	 * @param Sql|string|null $where where语句
-	 * @param array|null $sort 排序
+	 * @param SqlSort[]|null $sort 排序
 	 * @return Pager
 	 * @throws SqlException
 	 */
@@ -169,7 +230,14 @@ abstract class BaseModel implements IJsonObject, IMapObject, IModel, JsonSeriali
 		array $sort = null): Pager
 	{
 		$fields = self::_fields();
-
+		if ($sort) {
+			$sort = array_map(function ($sort) {
+				if ($sort instanceof SqlSort) {
+					$sort->setKey(self::prop2field($sort->getKey()));
+				}
+				return $sort;
+			}, $sort);
+		}
 		$pager = self::_database()->pager(
 			self::_table(),
 			$pageIndex,
@@ -440,6 +508,11 @@ abstract class BaseModel implements IJsonObject, IMapObject, IModel, JsonSeriali
 		return $map;
 	}
 
+	private static function setFieldRawValue()
+	{
+
+	}
+
 	public function jsonSerialize()
 	{
 		return $this->toMap();
@@ -473,5 +546,12 @@ abstract class BaseModel implements IJsonObject, IMapObject, IModel, JsonSeriali
 		$property->setAccessible(true);
 		$property->setValue($this, $value);
 		return $this;
+	}
+
+	private static function _checkCalledClass(string $method)
+	{
+		if (get_called_class() === BaseModel::class) {
+			throw new RuntimeException("请不要直接在BaseModel上调方法$method");
+		}
 	}
 }

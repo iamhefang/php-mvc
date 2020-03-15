@@ -94,14 +94,14 @@ abstract class BaseController implements IController
 	}
 
 	/**
-	 * @param string $name
+	 * 获取post数据
+	 * @param string|null $name 要获取post字段的键, 如果不传该参数, 返回整个post数组
 	 * @param null|string|int|float $defaultValue
-	 * @return mixed
+	 * @return string|array
 	 */
-	public function _post(string $name, $defaultValue = null)
+	public function _post(string $name = null, $defaultValue = null)
 	{
-		ObjectHelper::checkNull($name);
-		return CollectionHelper::getOrDefault($this->___post, $name, $defaultValue);
+		return $name ? CollectionHelper::getOrDefault($this->___post, $name, $defaultValue) : $this->___post;
 	}
 
 	/**

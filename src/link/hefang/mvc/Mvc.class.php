@@ -764,7 +764,8 @@ INFO
 		$actionMethod = $actMtdInfo["method"];
 		$actDoc = $actMtdInfo["doc"];
 		if (!empty($actDoc["method"]) && !in_array($controller->_method(), $actDoc["method"])) {
-			throw new MethodNotAllowException("不支持'{$controller->_method()}'请求方法");
+			$exception = new MethodNotAllowException("不支持'{$controller->_method()}'请求方法");
+			throw $exception->setRouter($router);
 		}
 		$view = $controller->$actionMethod($router->getCmd());
 		return ($view instanceof BaseView) ? $view : null;
