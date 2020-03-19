@@ -10,7 +10,7 @@ return [
 	'project.application.class' => null,
 	'project.pathinfo.type' => 'PATH_INFO', //PATH_INFO, QUERY_STRING
 	'project.pathinfo.querystring.key' => '_',
-	'project.auth.type' => 'TOKEN', //TOKEN, SESSION, BOTH
+	'project.auth.type' => 'TOKEN', //TOKEN, SESSION
 	'project.pagination.index.name' => 'pageIndex',
 	'project.pagination.size.name' => 'pageSize',
 	'project.sort.key.name' => 'sortKey',

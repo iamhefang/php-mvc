@@ -6,8 +6,8 @@ namespace link\hefang\mvc\databases;
 class SqlSort
 {
 	const TYPE_DEFAULT = "";
-	const TYPE_ASC = "ASC";
-	const TYPE_DESC = "DESC";
+	const TYPE_ASC = "ASC";//升序
+	const TYPE_DESC = "DESC";//降序
 	private $key = "";
 	private $type = "";
 	private $nullsFirst = false;

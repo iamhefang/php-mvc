@@ -4,11 +4,20 @@
 namespace link\hefang\mvc\models;
 
 
+use link\hefang\helpers\StringHelper;
+
 class ModelField
 {
+	const TRIM_DEF_CHARLIST = " \t\n\r \v";
 	const TYPE_TEXT = "text";
 	const TYPE_INT = "int";
+	const TYPE_FLOAT = "float";
 	const TYPE_BOOL = "bool";
+
+	//是否主键
+	private $primaryKey = false;
+	//是否自增字段
+	private $autoIncrement = false;
 
 	//数据库中对应的字段
 	private $field = "";
@@ -28,12 +37,71 @@ class ModelField
 	 * @param string $type
 	 * @param string $trim
 	 */
-	public function __construct(string $prop, string $field = null, string $type = self::TYPE_TEXT, string $trim = "\n\r \0")
+	public function __construct(string $prop, string $field = null, string $type = self::TYPE_TEXT, string $trim = "")
 	{
-		$this->field = $field ?: $prop;
+		$this->field = $field ?: StringHelper::hump2underLine($prop);
 		$this->prop = $prop;
 		$this->type = $type;
 		$this->trim = $trim;
+	}
+
+	public static function prop(string $prop): ModelField
+	{
+		return new ModelField($prop);
+	}
+
+	public function field(string $field): ModelField
+	{
+		$this->field = $field;
+		return $this;
+	}
+
+	public function type(string $type): ModelField
+	{
+		$this->type = $type;
+		return $this;
+	}
+
+	public function trim(string $trim = ModelField::TRIM_DEF_CHARLIST): ModelField
+	{
+		$this->trim = $trim;
+		return $this;
+	}
+
+	public function hide(): ModelField
+	{
+		$this->hideInResult = true;
+		return $this;
+	}
+
+	public function primaryKey(): ModelField
+	{
+		$this->primaryKey = true;
+		return $this;
+	}
+
+	public function autoIncrement(): ModelField
+	{
+		$this->autoIncrement = true;
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPrimaryKey(): bool
+	{
+		return $this->primaryKey;
+	}
+
+	/**
+	 * @param bool $primaryKey
+	 * @return ModelField
+	 */
+	public function setPrimaryKey(bool $primaryKey): ModelField
+	{
+		$this->primaryKey = $primaryKey;
+		return $this;
 	}
 
 	/**
@@ -120,9 +188,27 @@ class ModelField
 	 * @param string $trim
 	 * @return ModelField
 	 */
-	public function setTrim(string $trim): ModelField
+	public function setTrim(string $trim = ModelField::TRIM_DEF_CHARLIST): ModelField
 	{
 		$this->trim = $trim;
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAutoIncrement(): bool
+	{
+		return $this->autoIncrement;
+	}
+
+	/**
+	 * @param bool $autoIncrement
+	 * @return ModelField
+	 */
+	public function setAutoIncrement(bool $autoIncrement): ModelField
+	{
+		$this->autoIncrement = $autoIncrement;
 		return $this;
 	}
 
