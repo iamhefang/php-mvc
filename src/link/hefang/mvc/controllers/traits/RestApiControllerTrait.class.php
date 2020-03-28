@@ -96,7 +96,7 @@ trait RestApiControllerTrait
 	 * @param string $data
 	 * @return StatusView
 	 */
-	public function _restApiNotFound($data = "访问的接口不存在"): StatusView
+	public function _restApiNotFound($data = "请求的内容不存在"): StatusView
 	{
 		return $this->_restApi($data, 404);
 	}

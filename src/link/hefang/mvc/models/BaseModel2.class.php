@@ -50,10 +50,9 @@ abstract class BaseModel2 implements IMapObject, IJsonObject, JsonSerializable, 
 	 */
 	private static function _primaryKeys(): array
 	{
-		$class = self::_checkClass(__FUNCTION__);
 		return array_map(function (ModelField $field) {
 			return $field->getField();
-		}, array_filter($class::fields(), function (ModelField $field) {
+		}, array_filter(self::_fields(), function (ModelField $field) {
 			return $field->isPrimaryKey();
 		}));
 	}
@@ -65,29 +64,32 @@ abstract class BaseModel2 implements IMapObject, IJsonObject, JsonSerializable, 
 	 */
 	public static function find(string $where): BaseModel2
 	{
-		$class = self::_checkClass(__FUNCTION__);
-		$row = $class::database()->row($class::table(), $where);
-		return $class::_row2model($row);
+		$row = self::_database()->row(self::_table(), $where);
+		return self::_row2model($row);
 	}
 
 	/**
 	 * @param int $pageIndex
 	 * @param int $pageSize
-	 * @param string|null $where
-	 * @param array|null $sort
+	 * @param string|null|Sql $where
+	 * @param SqlSort[]|null $sort
 	 * @return Pager
 	 * @throws SqlException
 	 */
-	public static function pager(int $pageIndex = 1, int $pageSize = 10, string $where = null, array $sort = null): Pager
+	public static function pager(int $pageIndex = 1, int $pageSize = 10, $where = null, array $sort = null): Pager
 	{
-		$class = self::_checkClass(__FUNCTION__);
-		$fields = $class::fields();
+		$fields = self::_fields();
 		$db = self::database();
 		$fields2show = [];
 
 		foreach ($fields as $field) {
 			if (!$field->isHideInResult()) {
 				$fields2show[] = $field->getField();
+			}
+		}
+		if ($sort) {
+			foreach ($sort as &$sortItem) {
+				$sortItem->setKey(CollectionHelper::getOrDefault(self::propFieldMap(), $sortItem->getKey(), $sortItem->getKey()));
 			}
 		}
 		$pager = $db->pager(self::table(), $pageIndex, $pageSize, null, $where, $sort, null, $fields2show);
@@ -121,9 +123,8 @@ abstract class BaseModel2 implements IMapObject, IJsonObject, JsonSerializable, 
 	 */
 	public static function fieldObjMap(): array
 	{
-		$class = self::_checkClass(__FUNCTION__);
 		$map = [];
-		foreach ($class::fields() as $field) {
+		foreach (self::_fields() as $field) {
 			$map[$field->getField()] = $field;
 		}
 		return $map;
@@ -214,6 +215,11 @@ abstract class BaseModel2 implements IMapObject, IJsonObject, JsonSerializable, 
 		return new $class();
 	}
 
+	/**
+	 * @param $value
+	 * @param string $field
+	 * @return BaseModel2
+	 */
 	public function setValue2Field($value, string $field): BaseModel2
 	{
 		return $this->setValue2Prop($value, CollectionHelper::getOrDefault(self::fieldPropMap(), $field, $field));
@@ -241,22 +247,23 @@ abstract class BaseModel2 implements IMapObject, IJsonObject, JsonSerializable, 
 	 * 把当前模型数据插入数据库
 	 * @return bool
 	 * @throws ModelException
+	 * @throws SqlException
 	 */
 	public function insert(): bool
 	{
-		$class = self::_checkClass(__FUNCTION__);
 		if (self::readOnly()) {
 			throw new ModelException("该模型为只读模型, 无法执行新增操作");
 		}
 		if ($this->isExist()) {
 			throw new ModelException("该记录已存在, 无法执行新增操作");
 		}
-		$fields = $class::fields();
+		$fields = self::_fields();
 		$data = [];
 		foreach ($fields as $field) {
+			if ($field->isAutoIncrement()) continue;
 			$data[$field->getField()] = $this->getValueFromField($field->getField());
 		}
-		return $class::database()->insert($class::table(), $data) == 1;
+		return self::_database()->insert(self::_table(), $data) == 1;
 	}
 
 	private static function _checkClass(string $method): string
@@ -333,9 +340,8 @@ abstract class BaseModel2 implements IMapObject, IJsonObject, JsonSerializable, 
 
 	public static function propObjMap(): array
 	{
-		$class = self::_checkClass(__FUNCTION__);
 		$map = [];
-		foreach ($class::fields() as $field) {
+		foreach (self::_fields() as $field) {
 			$map[$field->getProp()] = $field;
 		}
 		return $map;
@@ -348,8 +354,7 @@ abstract class BaseModel2 implements IMapObject, IJsonObject, JsonSerializable, 
 
 	public static function propFieldMap(): array
 	{
-		$class = self::_checkClass(__FUNCTION__);
-		$fields = $class::fields();
+		$fields = self::_fields();
 		$map = [];
 		foreach ($fields as $field) {
 			$map[$field->getProp()] = $field->getField();
@@ -360,41 +365,49 @@ abstract class BaseModel2 implements IMapObject, IJsonObject, JsonSerializable, 
 	/**
 	 * 更新当前模型对应的数据
 	 * 注: 主键无法通过该方法更新
-	 * @param string[]|null $fields2update 要更新的数据库字段名
+	 * @param string[]|null $fields2update 要更新的数据库属性名
 	 * @return bool
 	 * @throws ModelException
 	 * @throws SqlException
 	 */
 	public function update(array $fields2update = null): bool
 	{
-		$class = self::_checkClass(__FUNCTION__);
-		if (self::readOnly()) {
+		if (self::_readOnly()) {
 			throw new ModelException("该模型为只读模型, 无法执行更新操作");
 		}
 		if (!$this->isExist()) {
 			throw new ModelException("该记录不存在, 无法执行更新操作");
 		}
-		$fields2update = $fields2update ?: array_keys(self::fieldPropMap());
-		$fields = $class::fields();
+		if ($fields2update) {
+			$fields2update = array_map(function ($field) {
+				return CollectionHelper::getOrDefault(self::propFieldMap(), $field, $field);
+			}, $fields2update);
+		} else {
+			$fields2update = array_keys(self::fieldPropMap());
+		}
+		$fields = self::_fields();
 		$data = [];
 		$where = [];
 		$params = [];
 		foreach ($fields as $field) {
 			$fieldName = $field->getField();
-			$propName = $field->getProp();
 			$value = $this->getValueFromField($fieldName);
+			if ($field->isAutoIncrement()) {
+				continue;
+			}
 			if ($field->isPrimaryKey()) {
 				if (!$value) {
 					throw new ModelException("该记录主键为空, 无法更新");
 				}
-				$where[] = "`$fieldName`=:$propName";
-				$params[$propName] = $value;
-			} else if (in_array($field->getField(), $fields2update)) {
+				$where[] = "`{$field->getField()}`=:{$field->getProp()}";
+				$params[$field->getProp()] = $value;
+			}
+			if (in_array($field->getField(), $fields2update)) {
 				$data[$fieldName] = $value;
 			}
 		}
 
-		return $class::database()->update($class::table(), $data, new Sql(join(" AND ", $where), $params)) == 1;
+		return self::_database()->update(self::_table(), $data, new Sql(join(" AND ", $where), $params)) == 1;
 	}
 
 	/**
@@ -405,8 +418,7 @@ abstract class BaseModel2 implements IMapObject, IJsonObject, JsonSerializable, 
 	 */
 	public function delete(): bool
 	{
-		$class = self::_checkClass(__FUNCTION__);
-		if (self::readOnly()) {
+		if (self::_readOnly()) {
 			throw new ModelException("该模型为只读模型, 无法执行删除操作");
 		}
 		if ($this->isExist()) {
@@ -414,7 +426,7 @@ abstract class BaseModel2 implements IMapObject, IJsonObject, JsonSerializable, 
 		}
 		$where = [];
 		$params = [];
-		foreach ($class::fields() as $field) {
+		foreach (self::_fields() as $field) {
 			if (!$field->isPrimaryKey()) continue;
 			$fieldName = $field->getField();
 			$propName = $field->getProp();
@@ -425,7 +437,7 @@ abstract class BaseModel2 implements IMapObject, IJsonObject, JsonSerializable, 
 			$where[] = "`$fieldName`=:$propName";
 			$params[$propName] = $value;
 		}
-		return $class::database()->delete($class::table(), new Sql(join(" AND ", $where), $params)) === 1;
+		return self::_database()->delete(self::_table(), new Sql(join(" AND ", $where), $params)) === 1;
 	}
 
 	public function toJsonString(): string
@@ -435,12 +447,13 @@ abstract class BaseModel2 implements IMapObject, IJsonObject, JsonSerializable, 
 
 	public function toMap(): array
 	{
-		$class = self::_checkClass(__FUNCTION__);
-		$fields = $class::fields();
+		$fields = self::_fields();
 		$map = [];
 
 		foreach ($fields as $field) {
-			$map[$field->getProp()] = $this->getValueFromProp($field->getProp());
+			if ($field->isHideInResult()) continue;
+			$prop = $field->getProp();
+			$map[$prop] = $this->getValueFromProp($prop);
 		}
 
 		return $map;
@@ -449,5 +462,42 @@ abstract class BaseModel2 implements IMapObject, IJsonObject, JsonSerializable, 
 	public function jsonSerialize()
 	{
 		return $this->toMap();
+	}
+
+	/**
+	 * @return ModelField[]
+	 */
+	private static function _fields(): array
+	{
+		$class = self::_checkClass(__FUNCTION__);
+		$method = substr(__FUNCTION__, 1);
+		return $class::$method();
+	}
+
+	/**
+	 * @return BaseDb
+	 */
+	private static function _database(): BaseDb
+	{
+		$class = self::_checkClass(__FUNCTION__);
+		$method = substr(__FUNCTION__, 1);
+		return $class::$method();
+	}
+
+	/**
+	 * @return string
+	 */
+	private static function _table(): string
+	{
+		$class = self::_checkClass(__FUNCTION__);
+		$method = substr(__FUNCTION__, 1);
+		return $class::$method();
+	}
+
+	private static function _readOnly(): bool
+	{
+		$class = self::_checkClass(__FUNCTION__);
+		$method = substr(__FUNCTION__, 1);
+		return $class::$method();
 	}
 }

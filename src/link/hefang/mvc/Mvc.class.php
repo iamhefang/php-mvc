@@ -488,7 +488,10 @@ class Mvc
 		if (is_array($router)) {
 			//todo: 路由解析未完成
 		}
-		session_name("PHP_MVC_SESSION_ID");
+		if (self::$authType === "SESSION") {
+			session_name("PHP_MVC_SESSION_ID");
+			session_start();
+		}
 	}
 
 	private static function initDatabase()

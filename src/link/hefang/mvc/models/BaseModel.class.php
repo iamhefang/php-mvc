@@ -24,6 +24,11 @@ use RuntimeException;
 use Throwable;
 
 
+/**
+ * Class BaseModel
+ * @package link\hefang\mvc\models
+ * @deprecated 请使用BaseModel2
+ */
 abstract class BaseModel implements IJsonObject, IMapObject, IModel, JsonSerializable
 {
 	private $exist = false;
