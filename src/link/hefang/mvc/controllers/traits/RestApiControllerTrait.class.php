@@ -5,10 +5,10 @@ namespace link\hefang\mvc\controllers\traits;
 
 
 use link\hefang\helpers\CollectionHelper;
-use link\hefang\mvc\entities\StatusResult;
 use link\hefang\mvc\exceptions\ModelException;
 use link\hefang\mvc\exceptions\SqlException;
 use link\hefang\mvc\Mvc;
+use link\hefang\mvc\results\StatusResult;
 use link\hefang\mvc\views\StatusView;
 use Throwable;
 

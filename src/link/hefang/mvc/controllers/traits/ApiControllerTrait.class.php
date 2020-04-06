@@ -6,8 +6,8 @@ namespace link\hefang\mvc\controllers\traits;
 
 use link\hefang\helpers\ObjectHelper;
 use link\hefang\helpers\StringHelper;
-use link\hefang\mvc\entities\ApiResult;
 use link\hefang\mvc\Mvc;
+use link\hefang\mvc\results\ApiResult;
 use link\hefang\mvc\views\BaseView;
 use link\hefang\mvc\views\TextView;
 use Throwable;

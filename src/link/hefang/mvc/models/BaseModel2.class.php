@@ -58,11 +58,11 @@ abstract class BaseModel2 implements IMapObject, IJsonObject, JsonSerializable, 
 	}
 
 	/**
-	 * @param string $where
+	 * @param string|Sql $where
 	 * @return BaseModel2
 	 * @throws SqlException
 	 */
-	public static function find(string $where): BaseModel2
+	public static function find($where): BaseModel2
 	{
 		$row = self::_database()->row(self::_table(), $where);
 		return self::_row2model($row);
@@ -186,10 +186,15 @@ abstract class BaseModel2 implements IMapObject, IJsonObject, JsonSerializable, 
 		}, $fields);
 	}
 
-	private static function _row2model(array $row): BaseModel2
+	/**
+	 * @param array $row
+	 * @return BaseModel2
+	 */
+	private static function _row2model($row): BaseModel2
 	{
 		$class = self::_checkClass(__FUNCTION__);
 		$model = self::_newModel();
+		if (empty($row)) return $model;
 		$row or $row = [];
 		try {
 			foreach ($row as $field => $value) {
@@ -442,7 +447,7 @@ abstract class BaseModel2 implements IMapObject, IJsonObject, JsonSerializable, 
 
 	public function toJsonString(): string
 	{
-		return json_encode($this->toMap(), JSON_UNESCAPED_UNICODE);
+		return json_encode($this->toMap(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 	}
 
 	public function toMap(): array

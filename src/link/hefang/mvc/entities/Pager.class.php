@@ -7,6 +7,10 @@ use JsonSerializable;
 use link\hefang\interfaces\IJsonObject;
 use link\hefang\interfaces\IMapObject;
 
+/**
+ * Class Pager
+ * @package link\hefang\mvc\entities
+ */
 class Pager implements IJsonObject, IMapObject, JsonSerializable
 {
 	private $total = 0;

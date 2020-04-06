@@ -3,8 +3,7 @@
 
 namespace link\hefang\mvc\views;
 
-
-use link\hefang\mvc\entities\StatusResult;
+use link\hefang\mvc\results\StatusResult;
 
 class StatusView extends BaseView
 {

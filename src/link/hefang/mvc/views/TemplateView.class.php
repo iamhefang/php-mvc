@@ -5,11 +5,12 @@ defined('PHP_MVC') or die("Access Refused");
 
 
 use link\hefang\helpers\CollectionHelper;
+use link\hefang\helpers\StringHelper;
+use link\hefang\mvc\entities\Router;
 use link\hefang\mvc\exceptions\ViewNotCompiledException;
 use link\hefang\mvc\exceptions\ViewNotFoundException;
 use link\hefang\mvc\helpers\DebugHelper;
 use link\hefang\mvc\Mvc;
-use Symfony\Component\Debug\Debug;
 
 /**
  * 模板视图
@@ -19,9 +20,40 @@ class TemplateView extends BaseView
 {
 	protected $cacheFilePath = null;
 	protected $includeMap = [];
+	/**
+	 * @var Router
+	 */
+	protected $router;
 
-	public function __construct(string $filename, array $data = null)
+	public function __construct(Router $router, string $filename = null, array $data = null)
 	{
+		$this->router = $router;
+		$theme = $router->getTheme();
+		$controller = $router->getController();
+		$module = $router->getModule();
+		$action = $router->getAction();
+		$ds = DIRECTORY_SEPARATOR;
+		if (StringHelper::isNullOrBlank($filename)) {
+			if ($module === Mvc::getDefaultModule() && $controller === Mvc::getDefaultController()) {
+				$filename = $ds . join($ds, [$theme, $action]);
+			} else {
+				$filename = $ds . join($ds, [$theme, $module, $controller, $action]);
+			}
+		}
+		$filename = str_replace("/", $ds, $filename);
+		if (strpos($filename, $ds) === false) {
+			$filename = $ds . join($ds, [
+					$router->getTheme(),
+					$filename
+				]);
+		} elseif ($filename{0} !== $ds) {
+			$filename = $ds . $router->getTheme() . $ds . $filename;
+		}
+
+		if (!StringHelper::endsWith($filename, true, ".php")) {
+			$filename = $filename . ".php";
+		}
+
 		$this->result = PATH_THEMES . $filename;
 		$this->data = is_array($data) ? $data : [];
 	}
@@ -41,7 +73,6 @@ class TemplateView extends BaseView
 		$this->isCompiled = true;
 		return $this;
 	}
-
 
 	/**
 	 * 循环编译视图文件
@@ -175,6 +206,7 @@ class TemplateView extends BaseView
 	 * 编译框架全局配置项调用
 	 * @param string $php
 	 * @return string
+	 * @example config:about
 	 */
 	protected function mvcConfig(string $php): string
 	{
@@ -192,9 +224,9 @@ class TemplateView extends BaseView
 			$type = $match[1];
 			$name = $match[2];
 			if ($type === 'config') {
-				$name = 'theme_' . $name;
+				$name = $this->router->getTheme() . '|' . $name;
 			}
-			return "<?= \link\hefang\mvc\Mvc::getConfig('{$name}',{$def}) ?>";
+			return "<?= \link\hefang\mvc\Mvc::getConfig('theme_{$name}',{$def}) ?>";
 		}, $php);
 	}
 

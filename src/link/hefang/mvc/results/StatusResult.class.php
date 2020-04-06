@@ -1,7 +1,7 @@
 <?php
 
 
-namespace link\hefang\mvc\entities;
+namespace link\hefang\mvc\results;
 
 
 use JsonSerializable;

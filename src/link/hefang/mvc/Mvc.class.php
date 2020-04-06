@@ -29,7 +29,6 @@ use link\hefang\mvc\views\BaseView;
 use link\hefang\mvc\views\FileView;
 use link\hefang\mvc\views\TextView;
 use ReflectionClass;
-use ReflectionException;
 use Throwable;
 
 class Mvc
@@ -515,23 +514,16 @@ class Mvc
 		$dbPort = intval(self::getProperty("database.port", '-1'));
 		$dbCharset = self::getProperty("database.charset");
 		self::$tablePrefix = self::getProperty("database.table.prefix", self::$tablePrefix);
-		//        self::$logger->notice("读取数据库配置", join("", ["",
-//            "\0 - 类名: ", $dbClassName,
-//            "\n - 主机: ", $dbHost,
-//            "\n - 端口: ", $dbPort > 0 ? $dbPort : '默认',
-//            "\n - 用户名: ", $dbUsername,
-//            "\n - 数据库: ", $dbDatabase,
-//            "\n - 编码: ", $dbCharset
-//        ]));
 		try {
 			$db = new $dbClassName($dbHost, $dbUsername, $dbPassword, $dbDatabase, $dbCharset, $dbPort);
 			if ($db instanceof BaseDb) {
 				self::$database = $db;
+			} else {
+				Mvc::getLogger()->error("数据库类就是BaseDb的直接或间接子类");
 			}
 		} catch (Throwable $e) {
 			Mvc::$logger->error("初始化数据库配置异常", $e->getMessage(), $e);
 		}
-
 	}
 
 	private static function initApplication()
@@ -576,7 +568,22 @@ class Mvc
 		foreach (ClassHelper::getClassPaths() as $classPath) {
 			$classes = array_merge($classes, ClassHelper::findClassesIn($classPath));
 		}
+		self::addControllers($classes);
+		$phpString = CollectionHelper::stringify(["controllers" => self::$controllers, "actions" => self::$actions]);
+		$cache = <<<CONTROLLERS
+        <?php return $phpString; ?>
+CONTROLLERS;
+		file_put_contents($controllerCacheFile, trim($cache));
+	}
+
+	/**
+	 * @param string[] $classes
+	 * @param string $module
+	 */
+	public static function addControllers(array $classes, string $module = null)
+	{
 		foreach ($classes as $class) {
+			if (!StringHelper::endsWith($class, false, "Controller")) continue;
 			try {
 				$reflection = new ReflectionClass($class);
 				if (
@@ -584,9 +591,9 @@ class Mvc
 					|| $reflection->isAbstract()
 					|| !$class::isController()
 				) continue;
-				$module = $class::module();
+				$realModule = $module ?: $class::module();
 				$controller = $class::name();
-				$ck = strtolower("$module/$controller");
+				$ck = strtolower("$realModule/$controller");
 				$doc = ActionDocComment::parse($reflection->getDocComment());
 				self::$controllers[$ck] = [
 					"class" => $reflection->getName(),
@@ -596,11 +603,6 @@ class Mvc
 			} catch (ReflectionException $e) {
 			}
 		}
-		$phpString = CollectionHelper::stringify(["controllers" => self::$controllers, "actions" => self::$actions]);
-		$cache = <<<CONTROLLERS
-        <?php return $phpString; ?>
-CONTROLLERS;
-		file_put_contents($controllerCacheFile, trim($cache));
 	}
 
 	private static function initActions(ReflectionClass $controllerClass, string $controllerKey)

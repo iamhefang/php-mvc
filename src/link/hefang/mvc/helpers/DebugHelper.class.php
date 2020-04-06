@@ -9,6 +9,24 @@ use link\hefang\mvc\Mvc;
 
 class DebugHelper
 {
+	private static $plugins = [];
+
+	/**
+	 * @param array $plugins
+	 */
+	public static function addPlugins(array $plugins)
+	{
+		self::$plugins = array_merge(self::$plugins, $plugins);
+	}
+
+	/**
+	 * @param mixed $plugins
+	 */
+	public static function addPlugin($plugins)
+	{
+		self::$plugins[] = $plugins;
+	}
+
 	public static function apiDebugField(array &$map)
 	{
 		if (Mvc::isDebug()) {
@@ -22,7 +40,7 @@ class DebugHelper
 				// 本次请求加载的模块
 				'loadedModules' => [],
 				// 本次请求加载的插件
-				'loadedPlugins' => [],
+				'loadedPlugins' => self::$plugins,
 				// 服务器信息
 				'serverHost' => $_SERVER["HTTP_HOST"],
 				//服务器名称

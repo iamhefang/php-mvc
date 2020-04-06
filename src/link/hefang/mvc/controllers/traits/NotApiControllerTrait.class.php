@@ -4,7 +4,6 @@
 namespace link\hefang\mvc\controllers\traits;
 
 
-use link\hefang\helpers\StringHelper;
 use link\hefang\mvc\Mvc;
 use link\hefang\mvc\views\BaseView;
 use link\hefang\mvc\views\ErrorView;
@@ -31,33 +30,14 @@ trait NotApiControllerTrait
 	 */
 	public function _template(array $data = null, string $path = null): BaseView
 	{
-		$theme = $this->getRouter()->getTheme();
-		$controller = $this->getRouter()->getController();
-		$module = $this->getRouter()->getModule();
-		$action = $this->getRouter()->getAction();
-		$ds = DIRECTORY_SEPARATOR;
-		if (StringHelper::isNullOrBlank($path)) {
-			if ($module === Mvc::getDefaultModule() && $controller === Mvc::getDefaultController()) {
-				$path = $ds . join($ds, [$theme, $action]);
-			} else {
-				$path = $ds . join($ds, [$theme, $module, $controller, $action]);
-			}
-		}
-		$path = str_replace("/", $ds, $path);
-		if (strpos($path, $ds) === false) {
-			$path = $ds . join($ds, [
-					$this->getRouter()->getTheme(),
-					$path
-				]);
-		} elseif ($path{0} !== $ds) {
-			$path = $ds . $this->getRouter()->getTheme() . $ds . $path;
-		}
-
-		if (!StringHelper::endsWith($path, true, ".php")) {
-			$path = $path . ".php";
-		}
-		return new TemplateView($path, array_merge($data, [
-			'themeUrl' => "/themes/{$this->getRouter()->getTheme()}"
+		return new TemplateView($this->getRouter(), $path, array_merge($data, [
+			"config" => [
+				"debug" => Mvc::isDebug(),
+				"urlPrefix" => Mvc::getUrlPrefix(),
+				"fileUrlPrefix" => Mvc::getUrlPrefix(),
+				'themeUrl' => "/themes/{$this->getRouter()->getTheme()}",
+				"router" => $this->getRouter()->toMap()
+			]
 		]));
 	}
 

@@ -29,15 +29,15 @@ class SimpleCache implements ICache
 		}
 
 		if (!is_dir($option)) {
-			throw new InvalidCachePath("缓存保存路径不是目录");
+			throw new InvalidCachePath("缓存保存路径'{$option}'不是目录");
 		}
 
 		if (!is_readable($option)) {
-			throw new InvalidCachePath("缓存保存路径不可读");
+			throw new InvalidCachePath("缓存保存路径'{$option}'不可读");
 		}
 
 		if (!is_writable($option)) {
-			throw new InvalidCachePath("缓存保存路径不可写");
+			throw new InvalidCachePath("缓存保存路径'{$option}'不可写");
 		}
 
 //        Mvc::getLogger()->notice("当前缓存保存路径", $option);
