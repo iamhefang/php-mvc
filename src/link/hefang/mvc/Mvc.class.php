@@ -21,6 +21,7 @@ use link\hefang\mvc\entities\ActionDocComment;
 use link\hefang\mvc\entities\Router;
 use link\hefang\mvc\exceptions\ActionNotFoundException;
 use link\hefang\mvc\exceptions\ControllerNotFoundException;
+use link\hefang\mvc\exceptions\DbException;
 use link\hefang\mvc\exceptions\MethodNotAllowException;
 use link\hefang\mvc\exceptions\PhpErrorException;
 use link\hefang\mvc\interfaces\IApplication;
@@ -393,22 +394,19 @@ class Mvc
 		$cacheClass = self::getProperty("cache.class");
 		$cacheOption = self::getProperty("cache.option");
 		if (StringHelper::isNullOrBlank($cacheClass)) {
-//            self::$logger->warn("缓存类未设置", "正在使用默认缓存类: " . SimpleCache::class);
 			return;
 		}
+		$cacheClass = self::_class($cacheClass);
 		if (!class_exists($cacheClass, true)) {
 			self::$logger->warn("缓存类不存在", $cacheClass);
 			return;
 		}
-		try {
-			$cache = new $cacheClass($cacheOption);
-			if (!($cache instanceof ICache)) {
-				self::$logger->error("缓存类应为" . ICache::class . "的实现类", $cacheClass);
-				return;
-			}
+		$cache = new $cacheClass($cacheOption);
+		if (!($cache instanceof ICache)) {
+			self::$logger->error("缓存类应为" . ICache::class . "的实现类", $cacheClass);
+			return;
+		} else {
 			self::$cache = $cache;
-		} catch (Throwable $exception) {
-			self::$logger->error("实例化缓存类时出现异常", $exception->getMessage(), $exception);
 		}
 	}
 
@@ -426,15 +424,13 @@ class Mvc
 
 	private static function initLogger()
 	{
-		$loggerClass = self::getProperty("logger.class");
+		$loggerClass = self::_class(self::getProperty("logger.class"));
 		$logLevel = self::getProperty("logger.level", "WARN");
 		if (StringHelper::isNullOrBlank($loggerClass)) {
-//            self::$logger->error("日志类未设置", "将使用默认日志类: " . SimpleFileLogger::class);
 			return;
 		}
 
 		if (!class_exists($loggerClass, true)) {
-//            self::$logger->error("日志类不存在, 将使用默认日志类", $loggerClass);
 			return;
 		}
 
@@ -472,7 +468,7 @@ class Mvc
 			exit("项目主包未设置");
 		}
 
-		self::$projectPackage = str_replace(".", "\\", self::$projectPackage);
+		self::$projectPackage = self::_class(self::$projectPackage);
 
 		if (!in_array(self::$pathInfoType, ["PATH_INFO", "QUERY_STRING"])) {
 			self::$pathInfoType = "PATH_INFO";
@@ -500,12 +496,10 @@ class Mvc
 			self::$logger->log("数据库功能未启用", "将无法进行数据库操作");
 			return;
 		}
-		$dbClassName = str_replace('.', "\\", self::getProperty("database.class"));
+		$dbClassName = self::_class(self::getProperty("database.class"));
 
 		if (!class_exists($dbClassName, true)) {
-			$dbEnable = false;
-			self::$logger->error("数据库类不存在, 数据库功能已禁用", $dbClassName);
-			return;
+			throw new DbException("数据库类不存在, 数据库功能已禁用");
 		}
 		$dbHost = self::getProperty("database.host");
 		$dbUsername = self::getProperty("database.username");
@@ -514,15 +508,11 @@ class Mvc
 		$dbPort = intval(self::getProperty("database.port", '-1'));
 		$dbCharset = self::getProperty("database.charset");
 		self::$tablePrefix = self::getProperty("database.table.prefix", self::$tablePrefix);
-		try {
-			$db = new $dbClassName($dbHost, $dbUsername, $dbPassword, $dbDatabase, $dbCharset, $dbPort);
-			if ($db instanceof BaseDb) {
-				self::$database = $db;
-			} else {
-				Mvc::getLogger()->error("数据库类就是BaseDb的直接或间接子类");
-			}
-		} catch (Throwable $e) {
-			Mvc::$logger->error("初始化数据库配置异常", $e->getMessage(), $e);
+		$db = new $dbClassName($dbHost, $dbUsername, $dbPassword, $dbDatabase, $dbCharset, $dbPort);
+		if ($db instanceof BaseDb) {
+			self::$database = $db;
+		} else {
+			Mvc::getLogger()->error("数据库类就是BaseDb的直接或间接子类");
 		}
 	}
 
@@ -532,7 +522,7 @@ class Mvc
 		if (StringHelper::isNullOrBlank($appClass)) {
 			$appClass = self::$projectPackage . "\\Application";
 		}
-		$appClass = str_replace(".", "\\", $appClass);
+		$appClass = self::_class($appClass);
 		if (!class_exists($appClass, true)) {
 			self::$logger->error("应用程序类不存在", $appClass);
 			return;
@@ -559,9 +549,7 @@ class Mvc
 		$pkgs = explode(",", self::getProperty("ext.controller.package", ""));
 		$pkgs = array_filter($pkgs, "\link\hefang\helpers\StringHelper::isNullOrBlank", ARRAY_FILTER_USE_BOTH);
 		$pkgs[] = self::$projectPackage;
-		$pkgs = array_map(function ($pkg) {
-			return str_replace(".", "\\", $pkg);
-		}, $pkgs);
+		$pkgs = array_map("self::_class", $pkgs);
 		self::$logger->notice('正在从' . count($pkgs) . "个包中读取控制器", join("\n", $pkgs));
 		$classes = [];
 
@@ -793,5 +781,16 @@ INFO
 		$file = str_replace("/theme/", PATH_THEMES . DIRECTORY_SEPARATOR, $path);
 		$file = str_replace('/', DIRECTORY_SEPARATOR, $file);
 		return new FileView($file);
+	}
+
+	/**
+	 * 将以.分割的命名空间和类转换为\分割
+	 * @param string $namespace
+	 * @return string
+	 */
+	public static function _class($namespace)
+	{
+		if (StringHelper::isNullOrBlank($namespace)) return $namespace;
+		return str_replace(".", "\\", $namespace);
 	}
 }

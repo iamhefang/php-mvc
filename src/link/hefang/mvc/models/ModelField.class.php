@@ -13,6 +13,8 @@ class ModelField
 	const TYPE_INT = "int";
 	const TYPE_FLOAT = "float";
 	const TYPE_BOOL = "bool";
+	const TYPE_JSON = "json";
+	const TYPE_JSON_STRING = "json-string";
 
 	//是否主键
 	private $primaryKey = false;

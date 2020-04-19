@@ -38,6 +38,7 @@
     "hefang/php-helpers": "1.0.0",
     "ext-json": "*",
     "ext-gd": "*",
-    "ext-pdo": "*"
+    "ext-pdo": "*",
+    "ext-redis": "*"
   }
 }

@@ -43,7 +43,7 @@ class Router implements IMapObject, IJsonObject
 		$this->map["action"] = ObjectHelper::nullOrDefault($action, Mvc::getDefaultAction());
 		$this->map["cmd"] = ObjectHelper::nullOrDefault($cmd, $this->getCmd());
 		$this->map["format"] = ObjectHelper::nullOrDefault($format, $this->getFormat());
-		$this->map["theme"] = ObjectHelper::nullOrDefault($theme, Mvc::getConfig('system|theme', Mvc::getDefaultTheme()));
+		$this->map["theme"] = ObjectHelper::nullOrDefault($theme, Mvc::getConfig('site|theme', Mvc::getDefaultTheme()));
 	}
 
 	/**

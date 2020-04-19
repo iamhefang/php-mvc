@@ -5,10 +5,17 @@ defined('PHP_MVC') or die("Access Refused");
 
 
 use link\hefang\interfaces\ICache;
+use link\hefang\mvc\Mvc;
+use Redis;
+use RuntimeException;
 
-//todo: radius 缓存待实现
-class RadiusCache implements ICache
+class RedisCache implements ICache
 {
+	private $namePrefix = "";
+	/**
+	 * @var Redis
+	 */
+	private $redis;
 
 	/**
 	 * ICache constructor.
@@ -17,7 +24,13 @@ class RadiusCache implements ICache
 	 */
 	public function __construct(string $option = null)
 	{
-		parent::__construct($option);
+		if (!extension_loaded("redis")) {
+			throw new RuntimeException("插件‘redis’未加载");
+		}
+		$tablePrefix = Mvc::getTablePrefix();
+		$this->namePrefix = Mvc::getProperty("cache.redis.namePrefix", "hefang-cms-" . $tablePrefix);
+		$this->redis = new Redis();
+		$this->redis->connect($option ?: "localhost");
 	}
 
 	/**
@@ -28,7 +41,7 @@ class RadiusCache implements ICache
 	 */
 	public function get(string $name, $defaultValue = null)
 	{
-		// TODO: Implement get() method.
+		return $this->exist($this->_name($name)) ? unserialize($this->redis->get($this->_name($name))) : $defaultValue;
 	}
 
 	/**
@@ -40,7 +53,9 @@ class RadiusCache implements ICache
 	 */
 	public function set(string $name, $value, int $expireIn = -1)
 	{
-		// TODO: Implement set() method.
+		$expireIn > 0 ?
+			$this->redis->set($this->_name($name), serialize($value), ['xx', 'px' => $expireIn]) :
+			$this->redis->set($this->_name($name), serialize($value));
 	}
 
 	/**
@@ -50,7 +65,7 @@ class RadiusCache implements ICache
 	 */
 	public function exist(string $name): bool
 	{
-		// TODO: Implement exist() method.
+		return $this->redis->exists($this->_name($name)) > 0;
 	}
 
 	/**
@@ -60,7 +75,11 @@ class RadiusCache implements ICache
 	 */
 	public function remove(string $name)
 	{
-		// TODO: Implement remove() method.
+		try {
+			return $this->get($this->_name($name));
+		} finally {
+			$this->redis->del($this->_name($name));
+		}
 	}
 
 	/**
@@ -69,7 +88,9 @@ class RadiusCache implements ICache
 	 */
 	public function clean(): bool
 	{
-		// TODO: Implement clean() method.
+		$names = $this->rawNames();
+		$total = count($names);
+		return $this->redis->del($names) === $total;
 	}
 
 	/**
@@ -78,7 +99,15 @@ class RadiusCache implements ICache
 	 */
 	public function names(): array
 	{
-		// TODO: Implement names() method.
+		$len = strlen($this->namePrefix);
+		return array_map(function (string $name) use ($len) {
+			return substr($name, $len);
+		}, $this->rawNames());
+	}
+
+	public function rawNames(): array
+	{
+		return $this->redis->keys($this->namePrefix . "*");
 	}
 
 	/**
@@ -87,6 +116,16 @@ class RadiusCache implements ICache
 	 */
 	public function count(): int
 	{
-		// TODO: Implement count() method.
+		return count($this->names());
+	}
+
+	private function _name(string $name): string
+	{
+		return $this->namePrefix . $name;
+	}
+
+	public function __destruct()
+	{
+		$this->redis->close();
 	}
 }

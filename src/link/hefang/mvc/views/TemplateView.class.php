@@ -206,7 +206,8 @@ class TemplateView extends BaseView
 	 * 编译框架全局配置项调用
 	 * @param string $php
 	 * @return string
-	 * @example config:about
+	 * @example config:about 读取当前主题下的about配置
+	 * @example mvc:site|name 读取系统中分类为site键为name的配置项
 	 */
 	protected function mvcConfig(string $php): string
 	{
@@ -224,9 +225,9 @@ class TemplateView extends BaseView
 			$type = $match[1];
 			$name = $match[2];
 			if ($type === 'config') {
-				$name = $this->router->getTheme() . '|' . $name;
+				$name = "theme_" . $this->router->getTheme() . '|' . $name;
 			}
-			return "<?= \link\hefang\mvc\Mvc::getConfig('theme_{$name}',{$def}) ?>";
+			return "<?= \link\hefang\mvc\Mvc::getConfig('{$name}',{$def}) ?>";
 		}, $php);
 	}
 
@@ -266,7 +267,7 @@ class TemplateView extends BaseView
 	{
 		$this->checkCompile();
 
-		Mvc::isDebug() and DebugHelper::apiDebugField($this->data);
+		DebugHelper::apiDebugField($this->data);
 
 		extract($this->data);
 

@@ -11,6 +11,7 @@ use link\hefang\mvc\Mvc;
 use PDO;
 use RuntimeException;
 
+
 class Mysql extends BaseDb
 {
 	const KEYWORDS = [
@@ -34,8 +35,9 @@ class Mysql extends BaseDb
 	{
 		parent::__construct($host, $username, $password, $database, $charset, $port);
 
-		if (!extension_loaded('pdo_mysql')) {
-			throw new RuntimeException("扩展'pdo_mysql'未加载");
+		if (!(extension_loaded("pdo") && extension_loaded("mysql"))
+			&& !extension_loaded("pdo_mysql")) {
+			throw new RuntimeException("扩展'pdo_mysql'或'pdo'+'mysql'未加载");
 		}
 
 		$dsn = "mysql:host=$host";
