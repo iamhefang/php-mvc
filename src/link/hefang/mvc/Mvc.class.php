@@ -5,7 +5,6 @@ defined('PHP_MVC') or die("Access Refused");
 
 use link\hefang\entities\Properties;
 use link\hefang\enums\LogLevel;
-use link\hefang\exceptions\IOException;
 use link\hefang\helpers\ClassHelper;
 use link\hefang\helpers\CollectionHelper;
 use link\hefang\helpers\ObjectHelper;
@@ -144,8 +143,11 @@ class Mvc
 			$view = self::$application->onException($exception);
 			if ($view !== null) {
 				$view->compile()->render();
+			} else if (Mvc::isDebug()) {
+				include "templates/exception.php";
+				exit(0);
 			} else {
-				include "templates/debug/index.php";
+				include "templates/error.php";
 				exit(0);
 			}
 		}
@@ -325,12 +327,12 @@ class Mvc
 		return self::$postRawJSON;
 	}
 
-	public static function init(string $propertiesPath = null)
+	public static function init(array $settings = null)
 	{
 		set_exception_handler(["link\hefang\mvc\Mvc", "exceptionHandler"]);
 		set_error_handler(["link\hefang\mvc\Mvc", "errorHandler"]);
 		self::initStaticVars();
-		self::initProperties($propertiesPath);
+		self::initProperties($settings);
 		self::initCaches();
 		self::initLogger();
 //        self::printSystemInfo();
@@ -351,41 +353,15 @@ class Mvc
 		self::$globalConfig = ObjectHelper::nullOrDefault(self::$application->onInit(), []);
 	}
 
-	private static function initProperties(string $propertiesPath = null)
+	private static function initProperties(array $settings = null)
 	{
-		if (StringHelper::isNullOrBlank($propertiesPath)) {
-			$propertiesPath = PATH_APPLICATION . DIRECTORY_SEPARATOR . "application.config.php";
-			if (!file_exists($propertiesPath)) {
-				$propertiesPath = PATH_APPLICATION . DIRECTORY_SEPARATOR . "config.properties";
-			}
+		$propertiesPath = PATH_APPLICATION . DIRECTORY_SEPARATOR . "application.config.php";
+		if (!is_array($settings)) {
+			$settings = is_file($propertiesPath) ? @include($propertiesPath) : [];
 		}
 		$defaultSettings = include(PHP_MVC_ROOT . DS . 'application.config.php');
 
-		if (is_file($propertiesPath)) {
-//            self::$logger->notice("发现配置文件, 正在读取", $propertiesPath);
-			if (StringHelper::endsWith($propertiesPath, true, '.php')) {
-				self::$settings = include($propertiesPath);
-			} elseif (StringHelper::endsWith($propertiesPath, true, '.properties')) {
-				try {
-					self::$properties->loadFile($propertiesPath);
-					$settings = self::$properties->propertyNames();
-					foreach ($settings as $setting) {
-						self::$settings[$setting] = self::$properties->getProperty($setting);
-					}
-//                $properties = self::$properties->propertyNames();
-//                empty($properties) ?
-//                    self::$logger->warn("配置文件中无有效配置项", $propertiesPath) :
-//                    self::$logger->notice("共读取到" . count($properties) . "个配置项", $propertiesPath);
-				} catch (IOException $e) {
-					self::$logger->error("读取配置文件异常", $e->getMessage(), $e);
-				}
-			} else {
-				self::$logger->error("配置文件不合法", $propertiesPath);
-			}
-		} else {
-			self::$logger->error("配置文件不存在", $propertiesPath);
-		}
-		self::$settings = array_merge($defaultSettings, self::$settings);
+		self::$settings = array_merge($defaultSettings, $settings);
 		self::$logger->debug("配置项", print_r(self::$settings, true));
 	}
 
@@ -637,7 +613,7 @@ CONTROLLERS;
 		return self::$tablePrefix;
 	}
 
-	private static function printSystemInfo()
+	public static function systemInfo()
 	{
 		$startTime = TimeHelper::formatMillis();
 		$os = PHP_OS;
@@ -647,8 +623,7 @@ CONTROLLERS;
 		$pathApplication = PATH_APPLICATION;
 		$pathThemes = PATH_THEMES;
 		$pathLibraries = PATH_LIBRARIES;
-		self::$logger->log(
-			"应用程序已启动...", <<<INFO
+		return <<<INFO
 -----------------------------[ java-mvc ]------------------------------
 
 -----------------------------[ 系统信息 ]------------------------------
@@ -666,8 +641,7 @@ CONTROLLERS;
 - 主题目录: $pathThemes
 
 -----------------------------[ 系统信息 ]------------------------------
-INFO
-		);
+INFO;
 	}
 
 	public function start()

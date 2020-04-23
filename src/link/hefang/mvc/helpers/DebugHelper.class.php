@@ -27,17 +27,17 @@ class DebugHelper
 		Mvc::isDebug() and self::$plugins[] = $plugins;
 	}
 
-	public static function apiDebugField(array &$map)
+	public static function debugInfo(): array
 	{
-		Mvc::isDebug() and $map['debug'] = [
+		return [
 			// 已定义的类
 			'declaredClasses' => get_declared_classes(),
 			// 已包含的文件
 			'includedFiles' => get_included_files(),
 			// 本次请求执行的SQL语句
 			'executedSQL' => Mysql::getExecutedSqls(),
-			// 本次请求加载的模块
-			'loadedModules' => [],
+			// 本次请求加载的PHP扩展
+			'loadedExtensions' => get_loaded_extensions(),
 			// 本次请求加载的插件
 			'loadedPlugins' => self::$plugins,
 			// 服务器信息
@@ -49,5 +49,10 @@ class DebugHelper
 			// 本次请求持续时间
 			'duration' => round((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) * 1000)
 		];
+	}
+
+	public static function apiDebugField(array &$map)
+	{
+		Mvc::isDebug() and $map['debug'] = self::debugInfo();
 	}
 }

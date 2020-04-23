@@ -28,9 +28,9 @@ require "link/hefang/mvc/Mvc.class.php";
 
 \link\hefang\helpers\ClassHelper::loader(PHP_MVC_ROOT, PATH_APPLICATION);
 
-function startMvcApplication(string $propertiesFile = null)
+function startMvcApplication(array $settings = null)
 {
-	\link\hefang\mvc\Mvc::init($propertiesFile);
+	\link\hefang\mvc\Mvc::init($settings);
 	$mvc = new \link\hefang\mvc\Mvc();
 	$mvc->start();
 }

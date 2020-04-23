@@ -85,4 +85,18 @@ class Sql implements IJsonObject, JsonSerializable, IMapObject
 	{
 		return $this->toMap();
 	}
+
+	public function __toString()
+	{
+		$params = '';
+		foreach ($this->getParams() as $key => $value) {
+			$type = gettype($value);
+			if (is_bool($value)) {
+				$value = $value ? 'true' : 'false';
+			}
+			$params .= "\n\r\r{$key}({$type}): {$value}";
+		}
+		$params or $params = '无';
+		return "SQL: {$this->getSql()}\n参数：{$params}";
+	}
 }
