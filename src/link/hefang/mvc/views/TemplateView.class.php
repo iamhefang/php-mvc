@@ -46,7 +46,7 @@ class TemplateView extends BaseView
 					$router->getTheme(),
 					$filename
 				]);
-		} elseif ($filename{0} !== $ds) {
+		} elseif ($filename[0] !== $ds) {
 			$filename = $ds . $router->getTheme() . $ds . $filename;
 		}
 
@@ -155,7 +155,7 @@ class TemplateView extends BaseView
 	{
 		return preg_replace_callback('#\{([0-9a-z_]+)\[(:?[0-9a-z_]+)]}#is', function (array $match) {
 			$index = $match[2];// is_numeric($match[2]) ? $match[2] : ('$' . $match[2]);
-			if ($index{0} === ':') {
+			if ($index[0] === ':') {
 				$index = str_replace(':', '$', $index);
 			} elseif (!is_numeric($index)) {
 				$index = "'{$index}'";
@@ -214,7 +214,7 @@ class TemplateView extends BaseView
 		return preg_replace_callback('#\{(mvc|config):([0-9a-z_|]{3,})(:([0-9a-z_:]+))?}#is', function (array $match) {
 			$def = CollectionHelper::getOrDefault($match, 4, null);
 			if ($def) {
-				if ($def{0} === ':') {
+				if ($def[0] === ':') {
 					$def = str_replace(':', '$', $def);
 				} else if (!(is_numeric($def) || $def === 'false' || $def === 'true')) {
 					$def = "'{$def}'";

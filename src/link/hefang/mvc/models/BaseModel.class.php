@@ -176,7 +176,7 @@ abstract class BaseModel implements IMapObject, IJsonObject, JsonSerializable, I
 			$sqlSort = new SqlSort();
 			if (StringHelper::startsWith($line, false, "-", "+")) {
 				$sqlSort->setKey(substr($line, 1));
-				if ($line{0} === "-") {
+				if ($line[0] === "-") {
 					$sqlSort->setType(SqlSort::TYPE_DESC);
 				}
 			} else {

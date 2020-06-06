@@ -33,7 +33,7 @@ class RedirectView extends BaseView
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge,ie=11,ie=10,ie=9,ie=8,chrome=1,chrome=1">
-    <meta http-equiv="refresh" content="0;url=$url"> 
+    <meta http-equiv="refresh" content="0;url=$url">
     <title>正在跳转...</title>
 </head>
 <body>
@@ -53,7 +53,7 @@ HTML;
 	public function compile(): BaseView
 	{
 		$this->isCompiled = true;
-		if ($this->result{0} === '/') {
+		if ($this->result[0] === '/') {
 			$this->result = Mvc::getUrlPrefix() . $this->result;
 		}
 		return $this;
